@@ -46,7 +46,7 @@ export function Strike({ state, dispatch }: ScreenProps) {
         <Text style={{ fontFamily: fonts.bodySemi, fontSize: 20, color: colors.ink }}>
           {me.identity.name} × {partner.identity.name}
         </Text>
-        <Text style={{ fontFamily: fonts.body, fontSize: 15, color: '#2C3300' }}>
+        <Text style={{ fontFamily: fonts.body, fontSize: 15, color: colors.inkSoft }}>
           {formatDistance(distanceMeters(me.location, partner.location))} uzaklıkta
           {partner.sameVenue ? ' · aynı mekanda' : ''}
         </Text>

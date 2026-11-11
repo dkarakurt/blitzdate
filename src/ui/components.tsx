@@ -60,10 +60,10 @@ export function Avatar({
 
 export function Wordmark({ size = 22 }: { size?: number }) {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-      <LogoMark size={size + 6} />
-      <Text style={{ fontFamily: fonts.display, fontSize: size, color: colors.text, letterSpacing: -0.6 }}>
-        blitz<Text style={{ color: colors.volt }}>date</Text>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }} accessibilityLabel="Fink">
+      <LogoMark size={size + 8} />
+      <Text style={{ fontFamily: fonts.display, fontSize: size + 4, color: colors.text, letterSpacing: -0.5 }}>
+        fink<Text style={{ color: colors.volt }}>.</Text>
       </Text>
     </View>
   );

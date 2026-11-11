@@ -25,7 +25,7 @@ Run lint and typecheck before declaring any task done.
 
 ## Navigation
 
-- BlitzDate's flow is a strict state machine (radar → strike → 90 sn room → decision → chat …), so navigation is a reducer in `src/state/app.ts`, rendered by `src/AppRoot.tsx`. Do not add Expo Router unless the flow stops being linear.
+- Fink's flow is a strict state machine (radar → strike → 90 sn room → decision → chat …), so navigation is a reducer in `src/state/app.ts`, rendered by `src/AppRoot.tsx`. Do not add Expo Router unless the flow stops being linear.
 - Pure rules live in `src/logic/` and are unit-tested in `__tests__/`. Demo-only simulation lives in `src/demo/`.
 
 ## Building with EAS

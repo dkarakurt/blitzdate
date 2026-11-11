@@ -11,7 +11,7 @@ export function Farewell({ state, dispatch }: ScreenProps) {
   const [i, setI] = useState(0);
   const text = farewellMessage(i);
   return (
-    <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(13,13,18,0.85)' }}>
+    <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: colors.scrim }}>
       <View style={{ backgroundColor: colors.surface, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20, paddingBottom: 28, gap: 16 }}>
         <View style={{ alignSelf: 'center', width: 40, height: 4, borderRadius: 2, backgroundColor: colors.line }} />
         <View style={{ gap: 6 }}>

@@ -14,7 +14,7 @@ export type AnimalKind =
   | 'frog';
 
 export const ANIMALS: ReadonlyArray<{ name: string; kind: AnimalKind; color: string }> = [
-  { name: 'Vaşak', kind: 'lynx', color: '#D7FF3A' },
+  { name: 'Vaşak', kind: 'lynx', color: '#FFFF00' },
   { name: 'Tilki', kind: 'fox', color: '#FF5C8A' },
   { name: 'Baykuş', kind: 'owl', color: '#5CE1FF' },
   { name: 'Tavşan', kind: 'rabbit', color: '#FFB23F' },

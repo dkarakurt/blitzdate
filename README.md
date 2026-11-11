@@ -1,6 +1,8 @@
-# ⚡ BlitzDate (v0.1 — demo)
+# fink. (v0.1 — demo)
 
 Anonim, anlık, 90 saniyelik çöpçatan uygulaması. Expo (React Native + TypeScript).
+
+**Marka:** tavşan logosu, sarı `#FFFF00` + gece laciverti `#14122B`, başlık fontu Fredoka (Türkçe harfler eklenmiş sürüm `assets/fonts/`, OFL 1.1), metin fontu Inter.
 
 ## Bu sürümde ne var
 
@@ -29,7 +31,7 @@ npx eas-cli@latest build -p android --profile preview
 Derleme bitince terminal bir indirme linki/QR kodu verir; telefondan açıp APK'yı kur.
 
 **2. GitHub Actions**
-Projeyi bir GitHub deposuna gönder. `.github/workflows/android-apk.yml` her push'ta testleri çalıştırır, APK'yı derler ve "Actions → blitzdate-apk" altında indirilebilir bırakır.
+Projeyi bir GitHub deposuna gönder. `.github/workflows/android-apk.yml` her push'ta testleri çalıştırır, APK'yı derler ve "Actions → blitzdate-apk (Fink APK)" altında indirilebilir bırakır.
 
 **3. Kendi bilgisayarında (Android Studio + JDK 17 kurulu)**
 ```bash

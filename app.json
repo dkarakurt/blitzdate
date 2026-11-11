@@ -1,21 +1,21 @@
 {
   "expo": {
-    "name": "BlitzDate",
-    "slug": "blitzdate",
+    "name": "Fink",
+    "slug": "fink",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
-    "backgroundColor": "#0D0D12",
+    "backgroundColor": "#14122B",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.blitzdate.app"
+      "bundleIdentifier": "com.fink.app"
     },
     "android": {
-      "package": "com.blitzdate.app",
+      "package": "com.fink.app",
       "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#0D0D12",
+        "backgroundColor": "#14122B",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -48,9 +48,9 @@
         "expo-splash-screen",
         {
           "image": "./assets/splash-icon.png",
-          "imageWidth": 160,
+          "imageWidth": 140,
           "resizeMode": "contain",
-          "backgroundColor": "#0D0D12"
+          "backgroundColor": "#14122B"
         }
       ]
     ]

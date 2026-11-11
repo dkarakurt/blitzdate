@@ -2,8 +2,6 @@ import React from 'react';
 import { View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
-import { BricolageGrotesque_500Medium } from '@expo-google-fonts/bricolage-grotesque/500Medium';
-import { BricolageGrotesque_800ExtraBold } from '@expo-google-fonts/bricolage-grotesque/800ExtraBold';
 import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
 import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
 import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
@@ -13,8 +11,9 @@ import { colors } from './src/ui/theme';
 
 export default function App() {
   const [loaded] = useFonts({
-    BricolageGrotesque_500Medium,
-    BricolageGrotesque_800ExtraBold,
+    // Fink logosunun fontu. Hazır pakette Türkçe harfler yok; assets/fonts altındaki sürüme eklendi (OFL 1.1).
+    Fredoka_500Medium: require('./assets/fonts/Fredoka-Medium.ttf'),
+    Fredoka_600SemiBold: require('./assets/fonts/Fredoka-SemiBold.ttf'),
     Inter_400Regular,
     Inter_500Medium,
     Inter_600SemiBold,

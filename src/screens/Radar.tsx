@@ -63,7 +63,7 @@ export function Radar({ state, dispatch, services }: ScreenProps) {
 
       <View style={{ width: size, height: size, alignSelf: 'center' }}>
         <Svg width={size} height={size} style={{ position: 'absolute' }}>
-          <Circle cx={R} cy={R} r={R - 2} fill="#121219" stroke={colors.line} />
+          <Circle cx={R} cy={R} r={R - 2} fill={colors.radar} stroke={colors.line} />
           <Circle cx={R} cy={R} r={(R - 26) * 0.7} fill="none" stroke={colors.line} />
           <Circle cx={R} cy={R} r={(R - 26) * 0.35} fill="none" stroke={colors.line} />
         </Svg>

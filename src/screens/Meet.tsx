@@ -42,9 +42,9 @@ export function Meet({ state, dispatch }: ScreenProps) {
         <Text style={T.body}>Tam ortanızda, ikinize de yakın bir yer.</Text>
       </View>
 
-      <View style={{ height: 190, borderRadius: 20, backgroundColor: '#121219', overflow: 'hidden' }}>
+      <View style={{ height: 190, borderRadius: 20, backgroundColor: colors.radar, overflow: 'hidden' }}>
         <Svg width="100%" height={190} viewBox="0 0 350 190" preserveAspectRatio="xMidYMid slice" style={{ position: 'absolute' }}>
-          <Path d="M0 60 H350 M0 130 H350 M90 0 V190 M210 0 V190 M290 0 V190" stroke="#1E1E28" strokeWidth={10} />
+          <Path d="M0 60 H350 M0 130 H350 M90 0 V190 M210 0 V190 M290 0 V190" stroke={colors.surface2} strokeWidth={10} />
           <Path d="M60 150 Q110 120 175 95" fill="none" stroke={colors.volt} strokeWidth={3} strokeDasharray="6 6" strokeLinecap="round" />
           <Path d="M290 45 Q240 70 175 95" fill="none" stroke={colors.spark} strokeWidth={3} strokeDasharray="6 6" strokeLinecap="round" />
         </Svg>
@@ -73,7 +73,7 @@ export function Meet({ state, dispatch }: ScreenProps) {
         <View style={{ gap: 2 }}>
           <Text style={{ fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.5, color: colors.ink }}>MASA KODU</Text>
           <Text testID="table-code" style={{ fontFamily: fonts.display, fontSize: 28, color: colors.ink }}>{plan.code}</Text>
-          <Text style={{ fontFamily: fonts.bodySemi, fontSize: 12, color: colors.ink }}>BlitzDate Kahve İndirimi</Text>
+          <Text style={{ fontFamily: fonts.bodySemi, fontSize: 12, color: colors.ink }}>Fink Kahve İndirimi</Text>
         </View>
         <View accessibilityRole="timer" style={{ alignItems: 'flex-end' }}>
           <Text style={{ fontFamily: fonts.display, fontSize: 30, color: colors.ink }}>{formatClock(left)}</Text>

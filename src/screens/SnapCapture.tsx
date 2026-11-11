@@ -66,7 +66,7 @@ export function SnapCapture({ state, dispatch }: ScreenProps) {
     );
   }
 
-  if (!permission) return <View style={{ flex: 1, backgroundColor: '#000' }} />;
+  if (!permission) return <View style={{ flex: 1, backgroundColor: colors.ink }} />;
 
   if (!permission.granted) {
     return (
@@ -80,7 +80,7 @@ export function SnapCapture({ state, dispatch }: ScreenProps) {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#000' }}>
+    <View style={{ flex: 1, backgroundColor: colors.ink }}>
       <View style={{ flex: 1, overflow: 'hidden', backgroundColor: colors.surface2 }}>
         {photo ? (
           <Image source={{ uri: photo.uri }} style={{ flex: 1 }} resizeMode="cover" accessibilityLabel="Az önce çekilen kare" />

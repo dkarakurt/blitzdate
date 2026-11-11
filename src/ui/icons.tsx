@@ -1,5 +1,5 @@
 import React from 'react';
-import Svg, { Circle, Ellipse, Path, Rect } from 'react-native-svg';
+import Svg, { Circle, Ellipse, G, Path, Rect } from 'react-native-svg';
 import type { AnimalKind } from '../logic/names';
 import { colors } from './theme';
 
@@ -90,12 +90,19 @@ export function AnimalIcon({ kind, size = 24, color = colors.ink, strokeWidth = 
   );
 }
 
-export function LogoMark({ size = 28, accent = colors.volt, track = colors.line }: { size?: number; accent?: string; track?: string }) {
+/** Fink logosu: tavşan işareti (512 birimlik çizim, "Hush Logo" tuvalinden). */
+export function LogoMark({ size = 28, accent = colors.volt, bg = colors.ink }: { size?: number; accent?: string; bg?: string }) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 120 120">
-      <Circle cx={60} cy={60} r={48} fill="none" stroke={track} strokeWidth={10} />
-      <Path d="M60 12 A48 48 0 0 1 108 60" fill="none" stroke={accent} strokeWidth={10} strokeLinecap="round" />
-      <Path d="M67 26 L41 64 L57 64 L50 94 L80 54 L63 54 L72 26 Z" fill={accent} />
+    <Svg width={size} height={size} viewBox="0 0 512 512">
+      <G fill={accent} stroke={accent} strokeLinecap="round" strokeLinejoin="round">
+        <Path d="M214 250 L196 70" strokeWidth={80} fill="none" />
+        <Path d="M296 250 L314 140 Q326 84 376 110 L424 152" strokeWidth={80} fill="none" />
+        <Circle cx={256} cy={336} r={140} stroke="none" />
+      </G>
+      <G stroke={bg} strokeWidth={18} fill="none" strokeLinecap="round">
+        <Path d="M182 342 Q206 368 230 342" />
+        <Path d="M282 342 Q306 368 330 342" />
+      </G>
     </Svg>
   );
 }
