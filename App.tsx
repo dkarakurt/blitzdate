@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
@@ -8,6 +8,7 @@ import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
 import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
 import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold';
 import { AppRoot } from './src/AppRoot';
+import { createBackend } from './src/backend';
 import { colors } from './src/ui/theme';
 
 export default function App() {
@@ -20,11 +21,13 @@ export default function App() {
     Inter_600SemiBold,
     Inter_700Bold,
   });
+  // Firebase ayarları derlemedeyse canlı sunucu, yoksa demo
+  const services = useMemo(() => ({ backend: createBackend(), rng: Math.random }), []);
 
   return (
     <SafeAreaProvider>
       <KeyboardProvider>
-        {loaded ? <AppRoot /> : <View style={{ flex: 1, backgroundColor: colors.night }} />}
+        {loaded ? <AppRoot services={services} /> : <View style={{ flex: 1, backgroundColor: colors.night }} />}
       </KeyboardProvider>
     </SafeAreaProvider>
   );

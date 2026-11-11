@@ -28,8 +28,16 @@ export const ADJECTIVES: readonly string[] = [
   'Cesur', 'Uykucu', 'Gizemli', 'Telaşlı', 'Kayıp', 'Meraklı', 'Asi', 'Sakin',
   'Dans Eden', 'Şakacı', 'Utangaç', 'Hırslı', 'Romantik', 'Dalgın', 'Neşeli', 'Filozof',
   'Kahveci', 'Gezgin', 'Şair', 'Hayalperest', 'Sabırsız', 'Nazik', 'Çılgın', 'Yaramaz',
-  'Bilge', 'Hızlı', 'Tembel', 'Kibar', 'Inatçı', 'Sevimli', 'Dürüst', 'Esprili',
+  'Bilge', 'Hızlı', 'Tembel', 'Kibar', 'İnatçı', 'Sevimli', 'Dürüst', 'Esprili',
   'Kararsız', 'Gece Kuşu', 'Erkenci', 'Müzisyen', 'Ressam', 'Maceracı', 'Sessiz', 'Gülen',
+  'Afacan', 'Akıllı', 'Atak', 'Çekingen', 'Dakik', 'Deli Dolu', 'Duygusal', 'Enerjik',
+  'Geveze', 'Gururlu', 'Heyecanlı', 'Huysuz', 'İyimser', 'Kafa Dengi', 'Kalender', 'Karizmatik',
+  'Keyifli', 'Kurnaz', 'Mütevazı', 'Narin', 'Obur', 'Oyuncu', 'Özgür', 'Rahat',
+  'Samimi', 'Sakar', 'Serseri', 'Sıcakkanlı', 'Sihirli', 'Sporcu', 'Şanslı', 'Şık',
+  'Tatlı', 'Tuhaf', 'Uçarı', 'Umutlu', 'Uslu', 'Vahşi', 'Yaratıcı', 'Zeki',
+  'Zarif', 'Gözlüklü', 'Kitapsever', 'Dağcı', 'Denizci', 'Düşünceli', 'Hareketli', 'Kaşif',
+  'Mucit', 'Dertsiz', 'Fırlama', 'Uykusuz', 'Pijamalı', 'Bulutlu', 'Fırtınalı', 'Yıldızlı',
+  'Cevval', 'Sevecen', 'Hülyalı', 'Masalcı',
 ];
 
 export interface AnimalIdentity {

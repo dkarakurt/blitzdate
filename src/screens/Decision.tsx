@@ -1,21 +1,34 @@
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import { Text, View } from 'react-native';
 import { secondsLeft } from '../logic/room';
-import { Avatar, Btn, T, useNow } from '../ui/components';
+import { friendlyError } from '../backend/errors';
+import { Avatar, Btn, T } from '../ui/components';
 import { Bolt } from '../ui/icons';
 import { colors, fonts } from '../ui/theme';
+import { ErrorLine } from './ChatParts';
 import type { ScreenProps } from './types';
 
-export function Decision({ state, dispatch }: ScreenProps) {
-  const now = useNow(250);
-  const left = state.decisionEndsAt ? secondsLeft(state.decisionEndsAt, now) : 0;
+export function Decision({ state, services, now }: ScreenProps) {
+  const m = state.match!;
+  const me = state.profile!;
+  const left = secondsLeft(m.decisionEndsAt, now);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const voted = m.votes.me === 'continue';
 
-  useEffect(() => {
-    if (state.decisionEndsAt && now > state.decisionEndsAt) dispatch({ type: 'DECISION_TIMEUP' });
-  }, [now, state.decisionEndsAt, dispatch]);
+  const vote = async (v: 'continue' | 'leave') => {
+    setBusy(true);
+    setError(null);
+    try {
+      await services.backend.vote(m.id, v);
+    } catch (e) {
+      setError(friendlyError(e));
+    } finally {
+      setBusy(false);
+    }
+  };
 
-  const voted = state.votes.me === 'continue';
-  const statusText = (v: typeof state.votes.me, mine: boolean) =>
+  const statusText = (v: typeof m.votes.me, mine: boolean) =>
     v === 'continue' ? (mine ? 'Devam dedin' : 'Devam dedi') : mine ? 'Bekleniyor' : 'Düşünüyor…';
 
   return (
@@ -31,12 +44,12 @@ export function Decision({ state, dispatch }: ScreenProps) {
       </View>
       <View style={{ flexDirection: 'row', gap: 12, alignSelf: 'stretch' }}>
         {[
-          { id: state.me!.identity, v: state.votes.me, mine: true },
-          { id: state.partner!.identity, v: state.votes.them, mine: false },
+          { id: me.identity, v: m.votes.me, mine: true },
+          { id: m.partner.identity, v: m.votes.them, mine: false },
         ].map((x) => (
-          <View key={x.id.name} style={{ flex: 1, backgroundColor: colors.surface, borderRadius: 20, padding: 16, alignItems: 'center', gap: 8 }}>
+          <View key={x.mine ? 'me' : 'them'} style={{ flex: 1, backgroundColor: colors.surface, borderRadius: 20, padding: 16, alignItems: 'center', gap: 8 }}>
             <Avatar identity={x.id} size={56} />
-            <Text style={{ fontFamily: fonts.bodySemi, fontSize: 13, color: colors.text }}>{x.id.name}</Text>
+            <Text numberOfLines={1} style={{ fontFamily: fonts.bodySemi, fontSize: 13, color: colors.text }}>{x.id.name}</Text>
             <Text style={{ fontFamily: fonts.bodySemi, fontSize: 13, color: x.v === 'continue' ? colors.volt : colors.muted }}>
               {statusText(x.v, x.mine)}
             </Text>
@@ -47,21 +60,17 @@ export function Decision({ state, dispatch }: ScreenProps) {
         Karar için <Text style={{ color: colors.text, fontFamily: fonts.bodySemi }}>{left} sn</Text>
       </Text>
       <View style={{ flex: 1 }} />
+      <ErrorLine text={error} />
       <Btn
         testID="vote-continue"
         label={voted ? 'Cevabı bekleniyor…' : 'Devam'}
         big
-        disabled={voted}
+        disabled={voted || busy}
         icon={<Bolt size={22} />}
-        onPress={() => dispatch({ type: 'VOTE', who: 'me', vote: 'continue', now: Date.now() })}
+        onPress={() => vote('continue')}
         style={{ alignSelf: 'stretch', height: 72, borderRadius: 36 }}
       />
-      <Btn
-        testID="vote-leave"
-        label="Veda et, radara dön"
-        variant="ghost"
-        onPress={() => dispatch({ type: 'VOTE', who: 'me', vote: 'leave', now: Date.now() })}
-      />
+      <Btn testID="vote-leave" label="Veda et, radara dön" variant="ghost" disabled={busy} onPress={() => vote('leave')} />
     </View>
   );
 }

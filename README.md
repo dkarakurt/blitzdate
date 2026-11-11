@@ -16,7 +16,7 @@ Anonim, anlık, 90 saniyelik çöpçatan uygulaması. Expo (React Native + TypeS
 | İkinci Şans: kibar veda şablonları | ✅ |
 | BlitzSnap: yalnızca canlı kamera, 5 sn görüntüleme, eşleşme başına 1 hak | ✅ gerçek kamera; Android'de ekran görüntüsü engeli |
 
-**Demo modu:** Henüz sunucu yok. Radardaki kişiler, karşı tarafın cevapları, "Devam" oyu ve karşıdan gelen BlitzSnap cihaz içinde simüle edilir (`src/demo/`). Gerçek eşleşme için bir sonraki adım backend'dir (konum, gerçek zamanlı sohbet, isim tablosu).
+**Canlı / demo:** Firebase ayarları derlemeye eklendiyse uygulama gerçek konum ve gerçek kişilerle çalışır (`src/backend/live.ts`, sunucu `functions/`). Ayar yoksa cihaz içi demo sunucu kullanılır (`src/backend/demo.ts`). Kurulum: [docs/CANLIYA-GECIS.md](docs/CANLIYA-GECIS.md).
 
 ## APK alma
 
@@ -55,6 +55,9 @@ npx expo run:android   # cihaz/emülatörde geliştirme sürümü
 ## Yapı
 
 ```
+src/backend/    Sunucu arayüzü: live (Firebase) ve demo
+functions/      Cloud Functions (europe-west1) + birim testleri
+firestore.rules Güvenlik kuralları (testleri: rules-tests/, emülatörle)
 src/logic/      Saf kurallar (isimler, radar, oda/karar, snap, meet, veda, Türkçe ekler)
 src/state/      Uygulama durum makinesi (reducer)
 src/demo/       Demo dünyası ve simüle karşı taraf

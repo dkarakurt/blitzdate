@@ -3,6 +3,11 @@ name: Android APK
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'functions/**'
+      - 'rules-tests/**'
+      - 'firestore.*'
+      - '*.md'
   workflow_dispatch:
 
 jobs:
@@ -25,16 +30,23 @@ jobs:
       - name: Bağımlılıkları kur
         run: npm ci
 
-      - name: Testler ve tip kontrolü
+      - name: Testler, tip kontrolü ve lint
         run: |
           npm test -- --ci
           npm run typecheck
+          npx expo lint
 
       - name: Android projesini üret (prebuild)
         run: npx expo prebuild --platform android --no-install
 
       - name: APK derle
         working-directory: android
+        env:
+          # Tanımlıysa uygulama canlı Firebase sunucusuna bağlanır; yoksa demo modunda derlenir.
+          EXPO_PUBLIC_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          EXPO_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          EXPO_PUBLIC_FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+          EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
         run: ./gradlew assembleRelease --no-daemon
 
       - name: APK'yı yükle

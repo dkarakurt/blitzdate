@@ -1,24 +1,36 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Animated, Easing, Pressable, Text, View, useWindowDimensions } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Animated, Easing, Linking, Pressable, Text, View, useWindowDimensions } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
-import { formatDistance, genderPlural, oppositeGender, visibleOnRadar, type RadarHit } from '../logic/radar';
+import { formatDistance, genderPlural, oppositeGender, RADAR_RADIUS_M } from '../logic/radar';
+import type { RadarEntry } from '../backend/types';
+import { friendlyError } from '../backend/errors';
 import { Avatar, Btn, T, Wordmark } from '../ui/components';
 import { Bolt } from '../ui/icons';
 import { colors, fonts } from '../ui/theme';
+import { ErrorLine } from './ChatParts';
 import type { ScreenProps } from './types';
 
-const M_PER_DEG = 111_320;
+export const RADAR_POLL_MS = 15_000;
+
+/** Yön bilgisi sızdırmamak için açı, kişiye özgü sabit bir sözde-rastgele değerdir. */
+function angleFor(id: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < id.length; i++) h = Math.imul(h ^ id.charCodeAt(i), 16777619);
+  return ((h >>> 0) % 360) * (Math.PI / 180);
+}
 
 export function Radar({ state, dispatch, services }: ScreenProps) {
-  const me = state.me!;
+  const profile = state.profile!;
   const { width } = useWindowDimensions();
-  const size = Math.min(width - 40, 360);
+  const size = Math.min(width - 40, 340);
   const R = size / 2;
-  const hidden = useMemo(() => new Set(state.hidden), [state.hidden]);
-  const hits = useMemo(() => visibleOnRadar(me, services.users, hidden), [me, services.users, hidden]);
+  const [entries, setEntries] = useState<RadarEntry[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
-  const selected: RadarHit | undefined = hits.find((h) => h.id === selectedId) ?? hits[0];
+  const [pending, setPending] = useState<string | null>(null);
+  const [waiting, setWaiting] = useState<Set<string>>(() => new Set());
+  const [error, setError] = useState<string | null>(null);
+  const selected = entries.find((h) => h.id === selectedId) ?? entries[0];
 
   const [sweep] = useState(() => new Animated.Value(0));
   useEffect(() => {
@@ -28,38 +40,78 @@ export function Radar({ state, dispatch, services }: ScreenProps) {
   }, [sweep]);
   const rotate = sweep.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
 
-  useEffect(() => {
-    if (!pending || !selected) return;
-    // Demo: karşı taraf da çarpıyor (gerçek sürümde sunucu iki tarafın onayını bekler).
-    const t = setTimeout(() => dispatch({ type: 'STRIKE', partner: selected }), 900);
-    return () => clearTimeout(t);
-  }, [pending, selected, dispatch]);
+  const refresh = useCallback(async () => {
+    try {
+      const list = await services.backend.nearby();
+      // Bana çarpanlar önce
+      setEntries([...list].sort((a, b) => Number(b.struckMe) - Number(a.struckMe) || a.distanceM - b.distanceM));
+      setLoaded(true);
+    } catch (e) {
+      setError(friendlyError(e));
+    }
+  }, [services.backend]);
 
-  const pos = (h: RadarHit) => {
-    const north = (h.location.lat - me.location.lat) * M_PER_DEG;
-    const east = (h.location.lng - me.location.lng) * M_PER_DEG * Math.cos((me.location.lat * Math.PI) / 180);
-    // Çok yakındakiler "Sen" simgesinin altında kalmasın diye en az 46 px dışarıda çizilir.
-    const dist = Math.hypot(north, east) || 1;
-    const r = 46 + (dist / 1000) * (R - 26 - 46);
-    return { left: R + (east / dist) * r, top: R - (north / dist) * r };
+  useEffect(() => {
+    const first = setTimeout(refresh, 0);
+    const t = setInterval(refresh, RADAR_POLL_MS);
+    return () => {
+      clearTimeout(first);
+      clearInterval(t);
+    };
+  }, [refresh, state.location]);
+
+  const strike = async (entry: RadarEntry) => {
+    setPending(entry.id);
+    setError(null);
+    try {
+      const r = await services.backend.strike(entry.id);
+      if (!r.matched) setWaiting((s) => new Set(s).add(entry.id));
+      // Eşleşme olursa sunucu odayı açar; ekran kendiliğinden Strike'a geçer.
+    } catch (e) {
+      setError(friendlyError(e));
+      refresh();
+    } finally {
+      setPending(null);
+    }
   };
 
+  const pos = (h: RadarEntry) => {
+    const r = 46 + (Math.min(h.distanceM, RADAR_RADIUS_M) / RADAR_RADIUS_M) * (R - 26 - 46);
+    const a = angleFor(h.id);
+    return { left: R + Math.sin(a) * r, top: R - Math.cos(a) * r };
+  };
+
+  const want = genderPlural(oppositeGender(profile.gender));
+
   return (
-    <View style={{ flex: 1, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16, gap: 16 }}>
+    <View style={{ flex: 1, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16, gap: 14 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <Wordmark />
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.surface, borderRadius: 22, paddingRight: 12, paddingLeft: 4, height: 44, borderWidth: 1, borderColor: colors.line }}>
-          <Avatar identity={me.identity} size={36} />
-          <Text style={{ fontFamily: fonts.bodySemi, fontSize: 13, color: colors.text }}>{me.identity.name}</Text>
-        </View>
+        <Pressable
+          testID="open-profile"
+          accessibilityRole="button"
+          accessibilityLabel={`Profilin: ${profile.identity.name}`}
+          onPress={() => dispatch({ type: 'OPEN', overlay: 'profile' })}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.surface, borderRadius: 22, paddingRight: 12, paddingLeft: 4, height: 44, borderWidth: 1, borderColor: colors.line, maxWidth: 190 }}
+        >
+          <Avatar identity={profile.identity} size={36} />
+          <Text numberOfLines={1} style={{ fontFamily: fonts.bodySemi, fontSize: 13, color: colors.text, flexShrink: 1 }}>{profile.identity.name}</Text>
+        </Pressable>
       </View>
 
       <View style={{ gap: 4 }}>
         <Text style={T.h1}>Şu an buradasın.</Text>
-        <Text style={T.body}>
-          1 km içinde <Text style={{ color: colors.volt, fontFamily: fonts.bodySemi }}>{hits.length} {genderPlural(oppositeGender(me.gender))}</Text> çevrimiçi
+        <Text testID="radar-count" style={T.body}>
+          1 km içinde <Text style={{ color: colors.volt, fontFamily: fonts.bodySemi }}>{entries.length} {want}</Text> çevrimiçi
         </Text>
       </View>
+
+      {state.location === 'denied' ? (
+        <View style={{ backgroundColor: colors.surface, borderRadius: 16, padding: 14, gap: 10, borderWidth: 1, borderColor: colors.spark }}>
+          <Text style={[T.body, { color: colors.text }]}>Yakınındakileri görmek için konum izni gerekli. Konumun yalnızca uygulama açıkken kullanılır.</Text>
+          <Btn label="Ayarları aç" variant="spark" onPress={() => Linking.openSettings()} style={{ alignSelf: 'flex-start', height: 40 }} />
+        </View>
+      ) : null}
 
       <View style={{ width: size, height: size, alignSelf: 'center' }}>
         <Svg width={size} height={size} style={{ position: 'absolute' }}>
@@ -74,9 +126,9 @@ export function Radar({ state, dispatch, services }: ScreenProps) {
           </Svg>
         </Animated.View>
         <View style={{ position: 'absolute', left: R - 20, top: R - 20 }}>
-          <Avatar identity={me.identity} size={40} bg={colors.paper} />
+          <Avatar identity={profile.identity} size={40} bg={colors.paper} />
         </View>
-        {hits.map((h) => {
+        {entries.map((h) => {
           const p = pos(h);
           const isSel = selected?.id === h.id;
           const d = isSel ? 56 : 44;
@@ -85,11 +137,11 @@ export function Radar({ state, dispatch, services }: ScreenProps) {
               key={h.id}
               testID={`radar-${h.id}`}
               accessibilityRole="button"
-              accessibilityLabel={`${h.identity.name}, ${formatDistance(h.distanceM)}`}
+              accessibilityLabel={`${h.identity.name}, ${formatDistance(h.distanceM)}${h.struckMe ? ', sana çarptı' : ''}`}
               onPress={() => setSelectedId(h.id)}
               style={{ position: 'absolute', left: p.left - d / 2, top: p.top - d / 2 }}
             >
-              <Avatar identity={h.identity} size={d} ring={isSel ? colors.volt : colors.line} />
+              <Avatar identity={h.identity} size={d} ring={h.struckMe ? colors.spark : isSel ? colors.volt : colors.line} />
             </Pressable>
           );
         })}
@@ -99,27 +151,31 @@ export function Radar({ state, dispatch, services }: ScreenProps) {
         <View style={{ backgroundColor: colors.surface, borderRadius: 20, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 14 }}>
           <Avatar identity={selected.identity} size={52} />
           <View style={{ flex: 1, gap: 2 }}>
-            <Text testID="selected-name" style={T.strong}>{selected.identity.name}</Text>
-            <Text style={T.small}>
+            <Text testID="selected-name" style={T.strong} numberOfLines={1}>{selected.identity.name}</Text>
+            <Text style={[T.small, selected.struckMe ? { color: colors.spark, fontFamily: fonts.bodySemi } : null]}>
               {formatDistance(selected.distanceM)}
-              {selected.sameVenue ? ' · aynı mekanda' : ' · şu an çevrimiçi'}
+              {selected.struckMe ? ' · sana çarptı!' : waiting.has(selected.id) ? ' · onun da çarpması bekleniyor' : ' · şu an çevrimiçi'}
             </Text>
           </View>
           <Btn
             testID="strike-button"
-            label={pending ? 'Bekleniyor' : 'Çarp'}
-            disabled={pending}
+            label={pending === selected.id ? 'Bekleniyor' : waiting.has(selected.id) ? 'Çarptın' : 'Çarp'}
+            disabled={!!pending || waiting.has(selected.id)}
             icon={<Bolt size={16} />}
-            onPress={() => setPending(true)}
+            onPress={() => {
+              void strike(selected);
+            }}
           />
         </View>
       ) : (
         <View style={{ backgroundColor: colors.surface, borderRadius: 20, padding: 20 }}>
-          <Text style={T.body}>Şu an yakında kimse yok. Radar taramaya devam ediyor.</Text>
+          <Text testID="radar-empty" style={T.body}>
+            {loaded ? 'Şu an 1 km içinde çevrimiçi kimse yok. Radar taramaya devam ediyor.' : 'Radar taranıyor…'}
+          </Text>
         </View>
       )}
-
-      <Text style={[T.small, { textAlign: 'center' }]}>Radarda yalnızca karşı cins görünür. Konum yalnızca yaklaşık mesafe.</Text>
+      <ErrorLine text={error} />
+      <Text style={[T.small, { textAlign: 'center' }]}>Radarda yalnızca karşı cins görünür. Konumun kimseye gösterilmez, yalnızca yaklaşık mesafe.</Text>
     </View>
   );
 }

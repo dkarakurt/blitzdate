@@ -1,0 +1,66 @@
+rules_version = '2';
+
+// Fink — Firestore güvenlik kuralları.
+// İstemci yalnızca: kendi profilini okur, kendi konumunu yazar, katıldığı odayı ve mesajlarını
+// okur, oda açıkken mesaj yazar, kendisine gelen snap'in varlığını görür. Gerisi Cloud Functions'ta.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function uid() { return request.auth.uid; }
+    function userDoc(u) { return /databases/$(database)/documents/users/$(u); }
+
+    match /users/{userId} {
+      allow read: if signedIn() && uid() == userId;
+      allow write: if false;
+    }
+
+    // Konum: yalnızca sahibi yazar/siler; kimse okuyamaz (yakındakileri sunucu hesaplar).
+    match /presence/{userId} {
+      allow read: if false;
+      allow delete: if signedIn() && uid() == userId;
+      allow create, update: if signedIn() && uid() == userId
+        && exists(userDoc(userId))
+        && request.resource.data.keys().hasOnly(['lat', 'lng', 'geohash', 'gender', 'updatedAt'])
+        && request.resource.data.lat is number && request.resource.data.lat >= -90 && request.resource.data.lat <= 90
+        && request.resource.data.lng is number && request.resource.data.lng >= -180 && request.resource.data.lng <= 180
+        && request.resource.data.geohash is string && request.resource.data.geohash.size() >= 6 && request.resource.data.geohash.size() <= 12
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.gender == get(userDoc(userId)).data.gender;
+    }
+
+    match /matches/{matchId} {
+      function m() { return get(/databases/$(database)/documents/matches/$(matchId)).data; }
+      function participant() { return signedIn() && uid() in m().users; }
+      function writable() {
+        return m().state == 'chat'
+          || (m().state == 'room' && request.time >= m().roomStartsAt && request.time < m().roomEndsAt);
+      }
+
+      allow read: if signedIn() && uid() in resource.data.users;
+      allow write: if false;
+
+      match /messages/{messageId} {
+        allow read: if participant();
+        allow create: if participant() && writable()
+          && request.resource.data.keys().hasOnly(['from', 'kind', 'text', 'at'])
+          && request.resource.data.from == uid()
+          && request.resource.data.kind in ['text', 'icebreaker', 'meet']
+          && request.resource.data.text is string
+          && request.resource.data.text.size() >= 1 && request.resource.data.text.size() <= 280
+          && request.resource.data.at == request.time;
+        allow update, delete: if false;
+      }
+
+      // Yalnızca alıcı, kendisine gelen snap'in kaydını görür; fotoğrafın kendisi snapData'da ve erişilemez.
+      match /snaps/{snapId} {
+        allow read: if signedIn() && resource.data.to == uid();
+        allow write: if false;
+      }
+    }
+
+    // names, strikes, blocks, reports, snapData: yalnızca sunucu.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

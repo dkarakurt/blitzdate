@@ -1,273 +1,174 @@
-import type { AnimalIdentity } from '../logic/names';
-import type { Gender, GeoPoint, RadarUser } from '../logic/radar';
-import { BLITZ_SECONDS, DECISION_SECONDS, decide, sanitizeMessage, type Vote } from '../logic/room';
-import { openSnap, tickSnap, type Snap } from '../logic/snap';
 import type { CafeSuggestion } from '../logic/meet';
+import type { ChatMessage, ClosedReason, IncomingSnap, MatchView, OpenedSnap, Profile } from '../backend/types';
+
+/**
+ * İstemci durumu. Eşleşmenin kendisi (süreler, oylar, kapanış) sunucudan gelir;
+ * burada yalnızca onun yansıması ve ekran üstü katmanlar (snap, buluşma, veda, şikayet…) tutulur.
+ */
+
+export type Overlay = 'snapCapture' | 'snapView' | 'meet' | 'farewell' | 'report' | 'profile' | 'legal';
+export type LegalDoc = 'terms' | 'privacy';
 
 export type Screen =
+  | 'loading'
   | 'onboarding'
   | 'radar'
   | 'strike'
   | 'room'
   | 'decision'
   | 'chat'
-  | 'meet'
-  | 'farewell'
   | 'closed'
-  | 'snapCapture'
-  | 'snapView';
-
-export interface Me {
-  identity: AnimalIdentity;
-  gender: Gender;
-  rerolled: boolean;
-  location: GeoPoint;
-  outdoors: boolean;
-}
-
-export interface Message {
-  id: string;
-  from: 'me' | 'them' | 'system';
-  text: string;
-  at: number;
-}
-
-export interface MeetPlan {
-  cafes: CafeSuggestion[];
-  selectedId: string | null;
-  going: boolean;
-}
-
-export type ClosedReason = 'farewell-sent' | 'decision' | null;
+  | Overlay;
 
 export interface AppState {
-  screen: Screen;
-  me: Me | null;
-  partner: RadarUser | null;
-  messages: Message[];
-  roomEndsAt: number | null;
-  decisionEndsAt: number | null;
-  votes: { me: Vote; them: Vote };
+  booted: boolean;
+  profile: Profile | null;
+  enteredRadar: boolean;
+  match: MatchView | null;
+  messages: ChatMessage[];
+  incomingSnap: IncomingSnap | null;
+  openedSnap: (OpenedSnap & { openedAt: number }) | null;
+  overlay: Overlay | null;
+  legalDoc: LegalDoc;
+  meet: { cafes: CafeSuggestion[]; selectedId: string | null; going: boolean } | null;
+  closed: { reason: ClosedReason; byMe: boolean } | null;
   icebreaker: number;
-  snapsSent: number;
-  incomingSnap: Snap | null;
-  snapReturn: 'room' | 'chat';
-  meetDismissed: boolean;
-  meet: MeetPlan | null;
-  hidden: string[];
-  closedReason: ClosedReason;
-  seq: number;
+  location: 'unknown' | 'granted' | 'denied';
 }
 
 export const initialState: AppState = {
-  screen: 'onboarding',
-  me: null,
-  partner: null,
+  booted: false,
+  profile: null,
+  enteredRadar: false,
+  match: null,
   messages: [],
-  roomEndsAt: null,
-  decisionEndsAt: null,
-  votes: { me: null, them: null },
-  icebreaker: 0,
-  snapsSent: 0,
   incomingSnap: null,
-  snapReturn: 'chat',
-  meetDismissed: false,
+  openedSnap: null,
+  overlay: null,
+  legalDoc: 'terms',
   meet: null,
-  hidden: [],
-  closedReason: null,
-  seq: 0,
+  closed: null,
+  icebreaker: 0,
+  location: 'unknown',
 };
 
 export type Action =
-  | { type: 'ONBOARD'; me: Me }
-  | { type: 'REROLL'; identity: AnimalIdentity }
+  | { type: 'BOOTED'; profile: Profile | null }
+  | { type: 'PROFILE'; profile: Profile }
   | { type: 'ENTER_RADAR' }
-  | { type: 'STRIKE'; partner: RadarUser }
-  | { type: 'OPEN_ROOM'; now: number }
-  | { type: 'SEND'; from: 'me' | 'them'; text: string; now: number }
-  | { type: 'ROOM_TIMEUP'; now: number }
-  | { type: 'VOTE'; who: 'me' | 'them'; vote: Exclude<Vote, null>; now: number }
-  | { type: 'DECISION_TIMEUP' }
-  | { type: 'SET_ICEBREAKER'; index: number }
-  | { type: 'OPEN_SNAP_CAPTURE' }
-  | { type: 'CANCEL_SNAP' }
-  | { type: 'SNAP_SENT'; now: number }
-  | { type: 'SNAP_RECEIVED'; snap: Snap; now: number }
-  | { type: 'VIEW_SNAP'; now: number }
-  | { type: 'SNAP_TICK'; now: number }
-  | { type: 'CLOSE_SNAP_VIEW' }
-  | { type: 'DISMISS_MEET' }
-  | { type: 'OPEN_MEET'; cafes: CafeSuggestion[] }
+  | { type: 'MATCH'; match: MatchView | null }
+  | { type: 'MATCH_EXPIRED' }
+  | { type: 'MESSAGES'; messages: ChatMessage[] }
+  | { type: 'INCOMING_SNAP'; snap: IncomingSnap | null }
+  | { type: 'SNAP_OPENED'; snap: OpenedSnap; now: number }
+  | { type: 'OPEN'; overlay: Overlay; legalDoc?: LegalDoc }
+  | { type: 'CLOSE_OVERLAY' }
+  | { type: 'MEET_LOADED'; cafes: CafeSuggestion[] }
   | { type: 'MEET_SELECT'; id: string }
   | { type: 'MEET_GOING' }
-  | { type: 'BACK_TO_CHAT' }
-  | { type: 'OPEN_FAREWELL' }
-  | { type: 'SEND_FAREWELL'; text: string; now: number }
-  | { type: 'RETURN_TO_RADAR' };
+  | { type: 'SET_ICEBREAKER'; index: number }
+  | { type: 'DISMISS_CLOSED' }
+  | { type: 'LOCATION'; status: AppState['location'] }
+  | { type: 'SIGNED_OUT' };
 
-function addMessage(state: AppState, from: Message['from'], text: string, now: number): AppState {
-  const seq = state.seq + 1;
-  return { ...state, seq, messages: [...state.messages, { id: `m${seq}`, from, text, at: now }] };
-}
+const MATCH_OVERLAYS: readonly Overlay[] = ['snapCapture', 'snapView', 'meet', 'farewell', 'report'];
 
-function resetMatch(state: AppState, extraHidden: string[] = []): AppState {
+function endMatch(state: AppState, reason: ClosedReason, byMe: boolean): AppState {
   return {
     ...state,
-    partner: null,
+    match: null,
     messages: [],
-    roomEndsAt: null,
-    decisionEndsAt: null,
-    votes: { me: null, them: null },
-    snapsSent: 0,
     incomingSnap: null,
-    meetDismissed: false,
+    openedSnap: null,
     meet: null,
-    hidden: [...state.hidden, ...extraHidden],
+    overlay: state.overlay && MATCH_OVERLAYS.includes(state.overlay) ? null : state.overlay,
+    closed: { reason, byMe },
   };
 }
 
-const CHAT_SCREENS: readonly Screen[] = ['room', 'chat'];
-
 export function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
-    case 'ONBOARD':
-      return { ...state, me: action.me, screen: 'onboarding' };
-
-    case 'REROLL':
-      if (!state.me || state.me.rerolled) return state;
-      return { ...state, me: { ...state.me, identity: action.identity, rerolled: true } };
-
+    case 'BOOTED':
+      return { ...state, booted: true, profile: action.profile, enteredRadar: !!action.profile };
+    case 'PROFILE':
+      return { ...state, profile: action.profile };
     case 'ENTER_RADAR':
-      if (!state.me) return state;
-      return { ...resetMatch(state), screen: 'radar', closedReason: null };
+      return state.profile ? { ...state, enteredRadar: true } : state;
 
-    case 'STRIKE':
-      if (state.screen !== 'radar' || state.hidden.includes(action.partner.id)) return state;
-      return { ...state, partner: action.partner, screen: 'strike' };
-
-    case 'OPEN_ROOM':
-      if (state.screen !== 'strike') return state;
-      return {
-        ...state,
-        screen: 'room',
-        messages: [],
-        roomEndsAt: action.now + BLITZ_SECONDS * 1000,
-        votes: { me: null, them: null },
-      };
-
-    case 'SEND': {
-      const text = sanitizeMessage(action.text);
-      if (!text || !state.partner) return state;
-      const inChat = CHAT_SCREENS.includes(state.screen) || state.screen === 'snapCapture' || state.screen === 'snapView';
-      if (!inChat) return state;
-      if (state.roomEndsAt != null && state.decisionEndsAt == null && action.now >= state.roomEndsAt) return state;
-      return addMessage(state, action.from, text, action.now);
-    }
-
-    case 'ROOM_TIMEUP':
-      if (state.roomEndsAt == null || state.decisionEndsAt != null || action.now < state.roomEndsAt) return state;
-      return { ...state, screen: 'decision', decisionEndsAt: action.now + DECISION_SECONDS * 1000 };
-
-    case 'VOTE': {
-      if (state.screen !== 'decision' && state.decisionEndsAt == null) return state;
-      const votes = { ...state.votes, [action.who]: action.vote };
-      const timeUp = state.decisionEndsAt != null && action.now > state.decisionEndsAt;
-      const outcome = decide(votes.me, votes.them, timeUp);
-      if (outcome === 'continue') {
-        const next = { ...state, votes, roomEndsAt: null, decisionEndsAt: null, screen: 'chat' as Screen };
-        return addMessage(next, 'system', 'İkiniz de Devam dediniz. Artık süre yok.', action.now);
+    case 'MATCH': {
+      const m = action.match;
+      if (!m) return state.match ? endMatch(state, 'expired', false) : state;
+      if (m.state === 'closed') {
+        if (!state.match || state.match.id !== m.id) return state;
+        return endMatch(state, m.closedReason ?? 'expired', m.closedByMe);
       }
-      if (outcome === 'closed') {
-        return { ...resetMatch(state, state.partner ? [state.partner.id] : []), screen: 'closed', closedReason: 'decision' };
-      }
-      return { ...state, votes };
-    }
-
-    case 'DECISION_TIMEUP':
-      if (state.decisionEndsAt == null) return state;
-      if (decide(state.votes.me, state.votes.them, true) === 'continue') return state;
-      return { ...resetMatch(state, state.partner ? [state.partner.id] : []), screen: 'closed', closedReason: 'decision' };
-
-    case 'SET_ICEBREAKER':
-      return { ...state, icebreaker: action.index };
-
-    case 'OPEN_SNAP_CAPTURE':
-      if (!CHAT_SCREENS.includes(state.screen) || state.snapsSent >= 1) return state;
-      return { ...state, snapReturn: state.screen as 'room' | 'chat', screen: 'snapCapture' };
-
-    case 'CANCEL_SNAP':
-      if (state.screen !== 'snapCapture') return state;
-      return { ...state, screen: state.snapReturn };
-
-    case 'SNAP_SENT': {
-      if (state.screen !== 'snapCapture') return state;
-      const next = { ...state, snapsSent: state.snapsSent + 1, screen: state.snapReturn };
-      return addMessage(next, 'system', 'BlitzSnap kozunu oynadın. Açıldığı an 5 saniye görünecek.', action.now);
-    }
-
-    case 'SNAP_RECEIVED': {
-      if (!state.partner || state.incomingSnap) return state;
-      const next = { ...state, incomingSnap: action.snap };
-      return addMessage(next, 'system', `${state.partner.identity.name} sana bir BlitzSnap gönderdi.`, action.now);
-    }
-
-    case 'VIEW_SNAP':
-      if (!state.incomingSnap || state.incomingSnap.state !== 'sealed') return state;
-      if (!CHAT_SCREENS.includes(state.screen)) return state;
+      const isNew = state.match?.id !== m.id;
       return {
         ...state,
-        snapReturn: state.screen as 'room' | 'chat',
-        screen: 'snapView',
-        incomingSnap: openSnap(state.incomingSnap, action.now),
+        match: m,
+        closed: isNew ? null : state.closed,
+        messages: isNew ? [] : state.messages,
+        incomingSnap: isNew ? null : state.incomingSnap,
+        openedSnap: isNew ? null : state.openedSnap,
+        meet: isNew ? null : state.meet,
+        overlay: isNew && state.overlay && MATCH_OVERLAYS.includes(state.overlay) ? null : state.overlay,
       };
+    }
+    case 'MATCH_EXPIRED':
+      return state.match && state.match.state === 'room' ? endMatch(state, 'expired', false) : state;
 
-    case 'SNAP_TICK':
-      if (!state.incomingSnap) return state;
-      return { ...state, incomingSnap: tickSnap(state.incomingSnap, action.now) };
+    case 'MESSAGES':
+      return state.match ? { ...state, messages: action.messages } : state;
+    case 'INCOMING_SNAP':
+      return state.match ? { ...state, incomingSnap: action.snap } : state;
+    case 'SNAP_OPENED':
+      return { ...state, openedSnap: { ...action.snap, openedAt: action.now }, incomingSnap: null };
 
-    case 'CLOSE_SNAP_VIEW':
-      if (state.screen !== 'snapView') return state;
-      return { ...state, screen: state.snapReturn };
+    case 'OPEN':
+      if (MATCH_OVERLAYS.includes(action.overlay) && !state.match) return state;
+      return { ...state, overlay: action.overlay, legalDoc: action.legalDoc ?? state.legalDoc };
+    case 'CLOSE_OVERLAY':
+      return { ...state, overlay: null, openedSnap: state.overlay === 'snapView' ? null : state.openedSnap };
 
-    case 'DISMISS_MEET':
-      return { ...state, meetDismissed: true };
-
-    case 'OPEN_MEET':
-      if (state.screen !== 'chat' && state.screen !== 'snapView') return state;
-      return {
-        ...state,
-        screen: 'meet',
-        meet: { cafes: action.cafes, selectedId: action.cafes[0]?.venue.id ?? null, going: false },
-      };
-
+    case 'MEET_LOADED':
+      return { ...state, meet: { cafes: action.cafes, selectedId: action.cafes[0]?.venue.id ?? null, going: false } };
     case 'MEET_SELECT':
       if (!state.meet || state.meet.going || !state.meet.cafes.some((c) => c.venue.id === action.id)) return state;
       return { ...state, meet: { ...state.meet, selectedId: action.id } };
-
     case 'MEET_GOING':
-      if (!state.meet || !state.meet.selectedId) return state;
-      return { ...state, meet: { ...state.meet, going: true } };
+      return state.meet?.selectedId ? { ...state, meet: { ...state.meet, going: true } } : state;
 
-    case 'BACK_TO_CHAT':
-      if (!state.partner || state.decisionEndsAt != null || state.roomEndsAt != null) return state;
-      return { ...state, screen: 'chat' };
-
-    case 'OPEN_FAREWELL':
-      if (state.screen !== 'chat') return state;
-      return { ...state, screen: 'farewell' };
-
-    case 'SEND_FAREWELL':
-      if (state.screen !== 'farewell' || !state.partner) return state;
-      return {
-        ...resetMatch(state, [state.partner.id]),
-        screen: 'closed',
-        closedReason: 'farewell-sent',
-      };
-
-    case 'RETURN_TO_RADAR':
-      return { ...resetMatch(state, state.partner ? [state.partner.id] : []), screen: 'radar', closedReason: null };
-
+    case 'SET_ICEBREAKER':
+      return { ...state, icebreaker: action.index };
+    case 'DISMISS_CLOSED':
+      return { ...state, closed: null };
+    case 'LOCATION':
+      return { ...state, location: action.status };
+    case 'SIGNED_OUT':
+      return { ...initialState, booted: true };
     default:
       return state;
   }
+}
+
+export const DECISION_GRACE_MS = 3000;
+
+/** Ekranın ne olduğu, durum + şimdiki zamandan türetilir (sunucu zamanlarına göre). */
+export function screenOf(state: AppState, now: number): Screen {
+  if (!state.booted) return 'loading';
+  if (!state.profile || !state.enteredRadar) return 'onboarding';
+  if (state.closed) return 'closed';
+  // 'legal' alttaki ekranın üstünde ayrı bir katman olarak çizilir (alttaki ekranın durumu korunur).
+  if (state.overlay && state.overlay !== 'legal') return state.overlay;
+  const m = state.match;
+  if (!m) return 'radar';
+  if (m.state === 'chat') return 'chat';
+  if (now < m.roomStartsAt) return 'strike';
+  if (now < m.roomEndsAt) return 'room';
+  return 'decision';
+}
+
+/** Karar penceresi (+ tolerans) geçti mi */
+export function isExpired(m: MatchView | null, now: number): boolean {
+  return !!m && m.state === 'room' && now > m.decisionEndsAt + DECISION_GRACE_MS;
 }

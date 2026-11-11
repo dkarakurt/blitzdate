@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import type { AnimalIdentity } from '../logic/names';
-import type { Message } from '../state/app';
+import type { ChatMessage as Message } from '../backend/types';
 import { AnimalIcon, Bolt, CameraIcon, LogoMark } from './icons';
 import { colors, fonts } from './theme';
 
