@@ -1,9 +1,14 @@
 import { distanceMeters, type GeoPoint } from './radar';
 
-/** BlitzMeet: iki kişi de dışarıda ve yakınsa ortada bir yerde 15 dakika içinde buluşma önerisi. */
+/**
+ * BlitzMeet: iki kişi de dışarıda ve birbirine yakınsa, ikisine de yürüme mesafesindeki
+ * kafeler önerilir. (İndirim / masa kodu bir sonraki sürümde.)
+ */
 
-export const MEET_WINDOW_MIN = 15;
 export const MEET_MAX_DISTANCE_M = 2000;
+/** Önerilen kafe, iki kişiye de en fazla bu kadar uzak olabilir. */
+export const CAFE_MAX_WALK_M = 700;
+export const MAX_SUGGESTIONS = 3;
 
 export interface MeetCandidate {
   location: GeoPoint;
@@ -21,6 +26,7 @@ export function midpoint(a: GeoPoint, b: GeoPoint): GeoPoint {
 export interface Venue {
   id: string;
   name: string;
+  kind: 'cafe' | 'other';
   location: GeoPoint;
   isPublic: boolean;
   tags: string[];
@@ -31,37 +37,24 @@ export function walkingMinutes(m: number): number {
   return Math.max(1, Math.round(m / 80));
 }
 
+export interface CafeSuggestion {
+  venue: Venue;
+  toA: number;
+  toB: number;
+}
+
 /**
- * Orta noktaya en yakın, halka açık mekanı seçer.
- * İkisine olan yürüme süreleri arasındaki fark büyükse (adil değilse) cezalandırır.
+ * İki kişiye de yakın, halka açık kafeler: her birine en fazla CAFE_MAX_WALK_M.
+ * Orta noktaya yakın ve iki tarafa da adil (yürüme süreleri benzer) olanlar önce gelir.
  */
-export function pickVenue(a: GeoPoint, b: GeoPoint, venues: Venue[], exclude: ReadonlySet<string> = new Set()): Venue | null {
+export function nearbyCafes(a: GeoPoint, b: GeoPoint, venues: Venue[], limit: number = MAX_SUGGESTIONS): CafeSuggestion[] {
   const mid = midpoint(a, b);
-  let best: Venue | null = null;
-  let bestScore = Infinity;
-  for (const v of venues) {
-    if (!v.isPublic || exclude.has(v.id)) continue;
-    const fairness = Math.abs(distanceMeters(a, v.location) - distanceMeters(b, v.location));
-    const score = distanceMeters(mid, v.location) + fairness * 0.5;
-    if (score < bestScore) {
-      bestScore = score;
-      best = v;
-    }
-  }
-  return best;
-}
-
-const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // karışan karakterler (0/O, 1/I/L) yok
-
-export function tableCode(rng: () => number = Math.random): string {
-  let s = '';
-  for (let i = 0; i < 4; i++) s += CODE_ALPHABET[Math.floor(rng() * CODE_ALPHABET.length)];
-  return `BLZ-${s}`;
-}
-
-export function formatClock(totalSeconds: number): string {
-  const t = Math.max(0, Math.floor(totalSeconds));
-  const m = Math.floor(t / 60);
-  const s = t % 60;
-  return `${m}:${s < 10 ? '0' : ''}${s}`;
+  return venues
+    .filter((v) => v.kind === 'cafe' && v.isPublic)
+    .map((v) => ({ venue: v, toA: distanceMeters(a, v.location), toB: distanceMeters(b, v.location) }))
+    .filter((s) => s.toA <= CAFE_MAX_WALK_M && s.toB <= CAFE_MAX_WALK_M)
+    .map((s) => ({ s, score: distanceMeters(mid, s.venue.location) + Math.abs(s.toA - s.toB) * 0.5 }))
+    .sort((x, y) => x.score - y.score)
+    .slice(0, limit)
+    .map((x) => x.s);
 }

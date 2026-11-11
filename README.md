@@ -10,9 +10,9 @@ Anonim, anlık, 90 saniyelik çöpçatan uygulaması. Expo (React Native + TypeS
 |---|---|
 | Giriş: cinsiyet + benzersiz "Sıfat + Hayvan" kimliği, bir kez yeniden çekme | ✅ |
 | Radar: yalnızca karşı cins, çevrimiçi, 1 km içi; yaklaşık mesafe | ✅ (demo kişiler) |
-| Strike → 90 sn BlitzRoom (yazılı) + AI buzkıran soruları | ✅ (sorular yerel listeden) |
+| Strike → 90 sn BlitzRoom (yazılı) + AI buzkıran soruları, "Sohbete gönder" butonu | ✅ (sorular yerel listeden) |
 | Devam kararı (ikisi de "Devam" → sonsuz sohbet, yoksa oda kapanır) | ✅ |
-| BlitzMeet: orta noktada halka açık mekan, masa kodu, 15 dk sayaç | ✅ (demo mekanlar) |
+| BlitzMeet: ikinize de yürüme mesafesindeki (≤700 m) halka açık kafeler | ✅ (demo kafeler) — indirim/masa kodu bir sonraki sürümde |
 | İkinci Şans: kibar veda şablonları | ✅ |
 | BlitzSnap: yalnızca canlı kamera, 5 sn görüntüleme, eşleşme başına 1 hak | ✅ gerçek kamera; Android'de ekran görüntüsü engeli |
 
@@ -67,4 +67,5 @@ __tests__/      Birim, akış ve uçtan uca ekran testleri
 
 - **iOS'ta ekran görüntüsü engellenemez**, yalnızca algılanır (uygulama kullanıcıyı uyarır). Android'de engellenir. Başka bir telefonla ekranı fotoğraflamak hiçbir platformda engellenemez.
 - Canlı çekim garantisi şu an uygulama içinde (galeri seçici yok + 60 sn yaş kontrolü). Sunucu tarafında cihaz doğrulaması (Play Integrity / App Attest) backend ile gelecek.
-- Mekanlar ve indirimler örnek veridir; anlaşmalı mekanlar netleşince bağlanacak.
+- Kafeler örnek veridir; gerçek kafe verisi (harita servisi) backend ile bağlanacak.
+- Klavye: `react-native-keyboard-controller` ile yazı alanı klavyenin üstünde kalır.

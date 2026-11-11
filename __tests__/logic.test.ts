@@ -20,7 +20,7 @@ import {
   tickSnap,
   validateSnap,
 } from '../src/logic/snap';
-import { canBlitzMeet, formatClock, midpoint, pickVenue, tableCode, walkingMinutes } from '../src/logic/meet';
+import { CAFE_MAX_WALK_M, canBlitzMeet, midpoint, nearbyCafes, walkingMinutes } from '../src/logic/meet';
 import { farewellMessage, FAREWELL_TEMPLATES } from '../src/logic/farewell';
 import { DEMO_ORIGIN, demoRegistry, demoUsers, demoVenues, offset } from '../src/demo/world';
 
@@ -177,21 +177,25 @@ describe('BlitzMeet', () => {
     expect(canBlitzMeet(a, { location: offset(DEMO_ORIGIN, 3000, 0), outdoors: true })).toBe(false);
   });
 
-  test('orta nokta ve halka açık en yakın mekan seçilir', () => {
+  test('yalnızca ikisine de yakın, halka açık kafeler önerilir; en adil olan önce', () => {
     const mid = midpoint(a.location, b.location);
     expect(mid.lat).toBeCloseTo((a.location.lat + b.location.lat) / 2);
-    const venues = demoVenues(a.location, b.location);
-    const v = pickVenue(a.location, b.location, venues)!;
-    expect(v.isPublic).toBe(true);
-    expect(v.id).toBe('v1');
-    expect(pickVenue(a.location, b.location, venues, new Set(['v1']))!.id).not.toBe('v1');
+    const cafes = nearbyCafes(a.location, b.location, demoVenues(a.location, b.location));
+    const ids = cafes.map((c) => c.venue.id);
+    expect(ids).toEqual(['v1', 'v2', 'v3']);
+    expect(ids).not.toContain('v4'); // uzak
+    expect(ids).not.toContain('v5'); // kafe değil
+    expect(ids).not.toContain('v6'); // halka açık değil
+    for (const c of cafes) {
+      expect(c.toA).toBeLessThanOrEqual(CAFE_MAX_WALK_M);
+      expect(c.toB).toBeLessThanOrEqual(CAFE_MAX_WALK_M);
+    }
+    expect(nearbyCafes(a.location, b.location, demoVenues(a.location, b.location), 1)).toHaveLength(1);
   });
 
-  test('masa kodu biçimi ve saat', () => {
-    expect(tableCode(seeded())).toMatch(/^BLZ-[A-HJ-NP-Z2-9]{4}$/);
-    expect(formatClock(900)).toBe('15:00');
-    expect(formatClock(61)).toBe('1:01');
+  test('yürüme süresi', () => {
     expect(walkingMinutes(320)).toBe(4);
+    expect(walkingMinutes(10)).toBe(1);
   });
 });
 

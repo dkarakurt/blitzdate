@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { BLITZ_SECONDS, ICEBREAKERS, isUrgent, nextIcebreaker, ringProgress, secondsLeft } from '../logic/room';
 import { distanceMeters, formatDistance } from '../logic/radar';
 import { snapsLeft } from '../logic/snap';
 import { Composer, Thread, TimerRing, useNow } from '../ui/components';
-import { Glyph } from '../ui/icons';
+import { Bolt, Glyph } from '../ui/icons';
 import { colors, fonts } from '../ui/theme';
 import { IncomingSnapBanner, PartnerHeader } from './ChatParts';
 import type { ScreenProps } from './types';
@@ -21,7 +22,7 @@ export function Room({ state, dispatch, services }: ScreenProps) {
   const dist = formatDistance(distanceMeters(state.me!.location, state.partner!.location));
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+    <KeyboardAvoidingView behavior="padding" automaticOffset style={{ flex: 1 }}>
       <View style={{ flex: 1, padding: 16, gap: 12 }}>
       <PartnerHeader
         state={state}
@@ -45,6 +46,32 @@ export function Room({ state, dispatch, services }: ScreenProps) {
         <Text testID="icebreaker" style={{ fontFamily: fonts.display, fontSize: 20, lineHeight: 24, color: colors.ink }}>
           {ICEBREAKERS[state.icebreaker]}
         </Text>
+        <Pressable
+          testID="send-icebreaker"
+          accessibilityRole="button"
+          accessibilityLabel="Bu soruyu sohbete gönder"
+          disabled={left === 0}
+          onPress={() => {
+            dispatch({ type: 'SEND', from: 'me', text: ICEBREAKERS[state.icebreaker], now: Date.now() });
+            dispatch({ type: 'SET_ICEBREAKER', index: nextIcebreaker(state.icebreaker, services.rng) });
+          }}
+          style={({ pressed }) => ({
+            alignSelf: 'flex-start',
+            height: 40,
+            paddingHorizontal: 14,
+            borderRadius: 20,
+            backgroundColor: colors.volt,
+            borderWidth: 2,
+            borderColor: colors.ink,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 6,
+            opacity: pressed ? 0.7 : 1,
+          })}
+        >
+          <Bolt size={14} />
+          <Text style={{ fontFamily: fonts.bodyBold, fontSize: 13, color: colors.ink }}>Sohbete gönder</Text>
+        </Pressable>
       </View>
 
       <Thread messages={state.messages} />

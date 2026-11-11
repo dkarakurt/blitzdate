@@ -1,6 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useFonts } from 'expo-font';
 import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
 import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
@@ -22,7 +23,9 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      {loaded ? <AppRoot /> : <View style={{ flex: 1, backgroundColor: colors.night }} />}
+      <KeyboardProvider>
+        {loaded ? <AppRoot /> : <View style={{ flex: 1, backgroundColor: colors.night }} />}
+      </KeyboardProvider>
     </SafeAreaProvider>
   );
 }

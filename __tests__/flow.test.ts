@@ -1,5 +1,6 @@
 import { initialState, reducer, type Action, type AppState } from '../src/state/app';
 import { demoUsers, demoVenues, DEMO_ORIGIN } from '../src/demo/world';
+import { nearbyCafes } from '../src/logic/meet';
 import { createSnap } from '../src/logic/snap';
 
 const run = (s: AppState, ...actions: Action[]) => actions.reduce(reducer, s);
@@ -94,14 +95,14 @@ describe('Uygulama akışı', () => {
     );
   }
 
-  test('BlitzMeet: 15 dakikalık plan, başka mekan ve geliyorum', () => {
-    const venues = demoVenues(me.location, tilki.location);
-    let s = reducer(inChat(), { type: 'OPEN_MEET', venue: venues[0], code: 'BLZ-7K2Q', now: 100_000 });
+  test('BlitzMeet: yakın kafeler listelenir, biri seçilir, geliyorum', () => {
+    const cafes = nearbyCafes(me.location, tilki.location, demoVenues(me.location, tilki.location));
+    let s = reducer(inChat(), { type: 'OPEN_MEET', cafes });
     expect(s.screen).toBe('meet');
-    expect(s.meet?.deadline).toBe(100_000 + 15 * 60_000);
-    s = reducer(s, { type: 'MEET_OTHER_VENUE', venue: venues[1] });
-    expect(s.meet?.venue.id).toBe('v2');
-    expect(s.meet?.excluded).toEqual(['v1']);
+    expect(s.meet?.selectedId).toBe('v1');
+    s = reducer(s, { type: 'MEET_SELECT', id: 'v2' });
+    expect(s.meet?.selectedId).toBe('v2');
+    expect(reducer(s, { type: 'MEET_SELECT', id: 'v4' }).meet?.selectedId).toBe('v2'); // listede olmayan seçilemez
     s = reducer(s, { type: 'MEET_GOING' });
     expect(s.meet?.going).toBe(true);
     expect(reducer(s, { type: 'BACK_TO_CHAT' }).screen).toBe('chat');

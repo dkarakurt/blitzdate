@@ -70,14 +70,16 @@ export function demoRegistry(rng?: () => number): NameRegistry {
 export function demoVenues(a: GeoPoint, b: GeoPoint): Venue[] {
   const mid = { lat: (a.lat + b.lat) / 2, lng: (a.lng + b.lng) / 2 };
   return [
-    { id: 'v1', name: 'Ortadaki Kahveci (demo)', location: offset(mid, 10, -5), isPublic: true, tags: ['Sakin', 'Kahve'] },
-    { id: 'v2', name: 'Köşe Çay Bahçesi (demo)', location: offset(mid, -60, 40), isPublic: true, tags: ['Açık hava', 'Çay'] },
-    { id: 'v3', name: 'Kitap Kafe (demo)', location: offset(mid, 90, 70), isPublic: true, tags: ['Sessiz', 'Tatlı'] },
-    { id: 'v4', name: 'Özel Kulüp (demo)', location: offset(mid, 0, 0), isPublic: false, tags: [] },
+    { id: 'v1', name: 'Ortadaki Kahveci (demo)', kind: 'cafe', location: offset(mid, 10, -5), isPublic: true, tags: ['Sakin', 'Kahve'] },
+    { id: 'v2', name: 'Köşe Kafe (demo)', kind: 'cafe', location: offset(mid, -120, 90), isPublic: true, tags: ['Bahçe', 'Tatlı'] },
+    { id: 'v3', name: 'Kitap Kafe (demo)', kind: 'cafe', location: offset(mid, 180, 140), isPublic: true, tags: ['Sessiz', 'Çay'] },
+    { id: 'v4', name: 'Uzak Kahveci (demo)', kind: 'cafe', location: offset(mid, 1400, 0), isPublic: true, tags: ['Kahve'] }, // uzak: önerilmez
+    { id: 'v5', name: 'Restoran (demo)', kind: 'other', location: offset(mid, 20, 20), isPublic: true, tags: [] }, // kafe değil
+    { id: 'v6', name: 'Özel Kulüp (demo)', kind: 'cafe', location: offset(mid, 0, 0), isPublic: false, tags: [] }, // halka açık değil
   ];
 }
 
-export const DEMO_REPLIES: ReadonlyArray<string> = [
+export const DEMO_REPLIES: readonly string[] = [
   'Haha, kabul.',
   'Bunu tartışmamız lazım ama süre yetmez.',
   'Tamam, bu bir puan sana.',

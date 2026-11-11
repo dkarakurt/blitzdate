@@ -13,7 +13,7 @@ export type AnimalKind =
   | 'cat'
   | 'frog';
 
-export const ANIMALS: ReadonlyArray<{ name: string; kind: AnimalKind; color: string }> = [
+export const ANIMALS: readonly { name: string; kind: AnimalKind; color: string }[] = [
   { name: 'Vaşak', kind: 'lynx', color: '#FFFF00' },
   { name: 'Tilki', kind: 'fox', color: '#FF5C8A' },
   { name: 'Baykuş', kind: 'owl', color: '#5CE1FF' },
@@ -24,7 +24,7 @@ export const ANIMALS: ReadonlyArray<{ name: string; kind: AnimalKind; color: str
   { name: 'Kurbağa', kind: 'frog', color: '#9BE564' },
 ];
 
-export const ADJECTIVES: ReadonlyArray<string> = [
+export const ADJECTIVES: readonly string[] = [
   'Cesur', 'Uykucu', 'Gizemli', 'Telaşlı', 'Kayıp', 'Meraklı', 'Asi', 'Sakin',
   'Dans Eden', 'Şakacı', 'Utangaç', 'Hırslı', 'Romantik', 'Dalgın', 'Neşeli', 'Filozof',
   'Kahveci', 'Gezgin', 'Şair', 'Hayalperest', 'Sabırsız', 'Nazik', 'Çılgın', 'Yaramaz',

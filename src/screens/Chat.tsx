@@ -1,6 +1,7 @@
 import React from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, Text, View } from 'react-native';
-import { canBlitzMeet, pickVenue, tableCode } from '../logic/meet';
+import { Pressable, Text, View } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import { canBlitzMeet, nearbyCafes } from '../logic/meet';
 import { distanceMeters, formatDistance } from '../logic/radar';
 import { snapsLeft } from '../logic/snap';
 import { demoVenues } from '../demo/world';
@@ -10,7 +11,7 @@ import { colors, fonts } from '../ui/theme';
 import { IncomingSnapBanner, PartnerHeader } from './ChatParts';
 import type { ScreenProps } from './types';
 
-export function Chat({ state, dispatch, services }: ScreenProps) {
+export function Chat({ state, dispatch }: ScreenProps) {
   const me = state.me!;
   const partner = state.partner!;
   const dist = distanceMeters(me.location, partner.location);
@@ -18,12 +19,12 @@ export function Chat({ state, dispatch, services }: ScreenProps) {
   const showMeet = meetable && !state.meetDismissed;
 
   const openMeet = () => {
-    const venue = pickVenue(me.location, partner.location, demoVenues(me.location, partner.location));
-    if (venue) dispatch({ type: 'OPEN_MEET', venue, code: tableCode(services.rng), now: Date.now() });
+    const cafes = nearbyCafes(me.location, partner.location, demoVenues(me.location, partner.location));
+    dispatch({ type: 'OPEN_MEET', cafes });
   };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+    <KeyboardAvoidingView behavior="padding" automaticOffset style={{ flex: 1 }}>
       <View style={{ flex: 1, padding: 16, gap: 12 }}>
       <PartnerHeader
         state={state}
@@ -57,10 +58,10 @@ export function Chat({ state, dispatch, services }: ScreenProps) {
             <Text style={{ fontFamily: fonts.bodyBold, fontSize: 12, letterSpacing: 1.5, color: colors.spark }}>BLITZMEET HAZIR</Text>
           </View>
           <Text style={{ fontFamily: fonts.body, fontSize: 15, color: colors.text, lineHeight: 20 }}>
-            İkiniz de dışarıdasınız ve aranızda {formatDistance(dist)} var. Yazışmak yerine 15 dakikada buluşalım mı?
+            İkiniz de dışarıdasınız ve aranızda {formatDistance(dist)} var. Yakınınızdaki bir kafede buluşalım mı?
           </Text>
           <View style={{ flexDirection: 'row', gap: 8 }}>
-            <Btn testID="meet-now" label="Şimdi buluş" variant="spark" onPress={openMeet} style={{ flex: 1, height: 44 }} />
+            <Btn testID="meet-now" label="Kafelere bak" variant="spark" onPress={openMeet} style={{ flex: 1, height: 44 }} />
             <Btn label="Sonra" variant="outline" onPress={() => dispatch({ type: 'DISMISS_MEET' })} style={{ height: 44 }} />
           </View>
         </View>

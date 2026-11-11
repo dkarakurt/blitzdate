@@ -58,7 +58,7 @@ export function SnapCapture({ state, dispatch }: ScreenProps) {
         </View>
         <Text style={[T.h1, { textAlign: 'center' }]}>Koz oynandı.</Text>
         <Text style={[T.body, { textAlign: 'center', maxWidth: 290 }]}>
-          BlitzSnap'in {dative(partnerName)} ulaştı. Açtığı an 5 saniye görecek, sonra sonsuza dek silinecek.
+          {"BlitzSnap'in "}{dative(partnerName)} ulaştı. Açtığı an 5 saniye görecek, sonra sonsuza dek silinecek.
         </Text>
         <View style={{ flex: 1 }} />
         <Btn testID="snap-done" label="Sohbete dön" big onPress={() => dispatch({ type: 'SNAP_SENT', now: Date.now() })} style={{ alignSelf: 'stretch' }} />

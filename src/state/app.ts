@@ -2,8 +2,7 @@ import type { AnimalIdentity } from '../logic/names';
 import type { Gender, GeoPoint, RadarUser } from '../logic/radar';
 import { BLITZ_SECONDS, DECISION_SECONDS, decide, sanitizeMessage, type Vote } from '../logic/room';
 import { openSnap, tickSnap, type Snap } from '../logic/snap';
-import type { Venue } from '../logic/meet';
-import { MEET_WINDOW_MIN } from '../logic/meet';
+import type { CafeSuggestion } from '../logic/meet';
 
 export type Screen =
   | 'onboarding'
@@ -34,11 +33,9 @@ export interface Message {
 }
 
 export interface MeetPlan {
-  venue: Venue;
-  code: string;
-  deadline: number;
+  cafes: CafeSuggestion[];
+  selectedId: string | null;
   going: boolean;
-  excluded: string[];
 }
 
 export type ClosedReason = 'farewell-sent' | 'decision' | null;
@@ -100,8 +97,8 @@ export type Action =
   | { type: 'SNAP_TICK'; now: number }
   | { type: 'CLOSE_SNAP_VIEW' }
   | { type: 'DISMISS_MEET' }
-  | { type: 'OPEN_MEET'; venue: Venue; code: string; now: number }
-  | { type: 'MEET_OTHER_VENUE'; venue: Venue }
+  | { type: 'OPEN_MEET'; cafes: CafeSuggestion[] }
+  | { type: 'MEET_SELECT'; id: string }
   | { type: 'MEET_GOING' }
   | { type: 'BACK_TO_CHAT' }
   | { type: 'OPEN_FAREWELL' }
@@ -129,7 +126,7 @@ function resetMatch(state: AppState, extraHidden: string[] = []): AppState {
   };
 }
 
-const CHAT_SCREENS: ReadonlyArray<Screen> = ['room', 'chat'];
+const CHAT_SCREENS: readonly Screen[] = ['room', 'chat'];
 
 export function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
@@ -240,24 +237,15 @@ export function reducer(state: AppState, action: Action): AppState {
       return {
         ...state,
         screen: 'meet',
-        meet: {
-          venue: action.venue,
-          code: action.code,
-          deadline: action.now + MEET_WINDOW_MIN * 60 * 1000,
-          going: false,
-          excluded: [],
-        },
+        meet: { cafes: action.cafes, selectedId: action.cafes[0]?.venue.id ?? null, going: false },
       };
 
-    case 'MEET_OTHER_VENUE':
-      if (!state.meet) return state;
-      return {
-        ...state,
-        meet: { ...state.meet, venue: action.venue, excluded: [...state.meet.excluded, state.meet.venue.id] },
-      };
+    case 'MEET_SELECT':
+      if (!state.meet || state.meet.going || !state.meet.cafes.some((c) => c.venue.id === action.id)) return state;
+      return { ...state, meet: { ...state.meet, selectedId: action.id } };
 
     case 'MEET_GOING':
-      if (!state.meet) return state;
+      if (!state.meet || !state.meet.selectedId) return state;
       return { ...state, meet: { ...state.meet, going: true } };
 
     case 'BACK_TO_CHAT':

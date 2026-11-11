@@ -64,7 +64,7 @@ export function Onboarding({ state, dispatch, services }: ScreenProps) {
         {me.identity.name}
       </Text>
       <Text style={[T.body, { textAlign: 'center', maxWidth: 300 }]}>
-        Bu isim yalnızca sana ait. Radarda, Strike'ta ve BlitzRoom'da seni herkes böyle tanıyacak.
+        {"Bu isim yalnızca sana ait. Radarda, Strike'ta ve BlitzRoom'da seni herkes böyle tanıyacak."}
       </Text>
       <View style={{ flex: 1 }} />
       <Btn testID="enter-radar" label="Radara gir" big onPress={() => dispatch({ type: 'ENTER_RADAR' })} style={{ alignSelf: 'stretch' }} />

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Animated, Easing, Pressable, Text, View, useWindowDimensions } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 import { formatDistance, genderPlural, oppositeGender, visibleOnRadar, type RadarHit } from '../logic/radar';
@@ -20,7 +20,7 @@ export function Radar({ state, dispatch, services }: ScreenProps) {
   const [pending, setPending] = useState(false);
   const selected: RadarHit | undefined = hits.find((h) => h.id === selectedId) ?? hits[0];
 
-  const sweep = useRef(new Animated.Value(0)).current;
+  const [sweep] = useState(() => new Animated.Value(0));
   useEffect(() => {
     const loop = Animated.loop(Animated.timing(sweep, { toValue: 1, duration: 4000, easing: Easing.linear, useNativeDriver: true }));
     loop.start();

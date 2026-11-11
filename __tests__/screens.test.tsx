@@ -111,12 +111,18 @@ describe('Ekranlar (uçtan uca, demo modu)', () => {
     expect(screen.getByText('90')).toBeTruthy();
     const q1 = screen.getByTestId('icebreaker').props.children;
     await fireEvent.press(screen.getByTestId('next-icebreaker'));
-    expect(screen.getByTestId('icebreaker').props.children).not.toBe(q1);
+    const q2 = screen.getByTestId('icebreaker').props.children;
+    expect(q2).not.toBe(q1);
+    // "Sohbete gönder": soru doğrudan sohbete düşer, yerine yeni soru gelir
+    await fireEvent.press(screen.getByTestId('send-icebreaker'));
+    expect(screen.getAllByText(q2).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByTestId('icebreaker').props.children).not.toBe(q2);
+    await advance(DEMO_TIMING.replyMs + 50);
     await fireEvent.changeText(screen.getByTestId('message-input'), 'Kenar yenir!');
     await fireEvent.press(screen.getByTestId('send-button'));
     expect(screen.getByText('Kenar yenir!')).toBeTruthy();
     await advance(DEMO_TIMING.replyMs + 50);
-    expect(screen.getByText('Haha, kabul.')).toBeTruthy();
+    expect(screen.getByText('Bunu tartışmamız lazım ama süre yetmez.')).toBeTruthy();
     await advance(30_000);
     const label: string = screen.getByLabelText(/Kalan süre/).props.accessibilityLabel;
     const left = Number(label.match(/\d+/)![0]);
@@ -140,17 +146,19 @@ describe('Ekranlar (uçtan uca, demo modu)', () => {
     expect(screen.queryByTestId('radar-demo-0')).toBeNull();
   });
 
-  test('BlitzMeet: masa kodu, 15 dakika, başka mekan', async () => {
+  test('BlitzMeet: yalnızca yakın kafeler, kod/indirim yok', async () => {
     await goToChat();
     await fireEvent.press(screen.getByTestId('meet-now'));
     expect(screen.getByTestId('screen-meet')).toBeTruthy();
-    expect(screen.getByTestId('table-code').props.children).toMatch(/^BLZ-[A-Z2-9]{4}$/);
-    expect(screen.getByText('15:00')).toBeTruthy();
-    const v1 = screen.getByTestId('venue-name').props.children;
-    await fireEvent.press(screen.getByTestId('other-venue'));
-    expect(screen.getByTestId('venue-name').props.children).not.toBe(v1);
+    expect(screen.getByTestId('cafe-v1')).toBeTruthy();
+    expect(screen.getByTestId('cafe-v2')).toBeTruthy();
+    expect(screen.queryByTestId('cafe-v4')).toBeNull();
+    expect(screen.queryByText(/kod/i)).toBeNull();
+    expect(screen.queryByText(/indirim/i)).toBeNull();
+    await fireEvent.press(screen.getByTestId('cafe-v2'));
+    expect(screen.getByTestId('cafe-v2').props.accessibilityState.selected).toBe(true);
     await fireEvent.press(screen.getByTestId('meet-going'));
-    expect(screen.getByText('Yoldasın! Kodu kasada göster')).toBeTruthy();
+    expect(screen.getByText('Yoldasın! Görüşürsünüz')).toBeTruthy();
     await fireEvent.press(screen.getByTestId('meet-back'));
     expect(screen.getByTestId('screen-chat')).toBeTruthy();
   });

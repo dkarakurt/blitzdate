@@ -1,6 +1,6 @@
 /** İkinci Şans: ghosting yerine sistemin hazırladığı kibar bir veda. */
 
-export const FAREWELL_TEMPLATES: ReadonlyArray<string> = [
+export const FAREWELL_TEMPLATES: readonly string[] = [
   'Harika bir sohbetti ama kimyamızın tam uyuşmadığını düşünüyorum, bol şans!',
   'Seninle yazışmak keyifliydi ama burada ayrılmak en doğrusu gibi. Kendine iyi bak!',
   'Güzel bir sohbetti, teşekkürler. Yollarımız burada ayrılsın, bol şans!',

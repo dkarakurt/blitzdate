@@ -33,7 +33,7 @@ export function decide(a: Vote, b: Vote, timeUp: boolean): DecisionOutcome {
   return timeUp ? 'closed' : 'pending';
 }
 
-export const ICEBREAKERS: ReadonlyArray<string> = [
+export const ICEBREAKERS: readonly string[] = [
   'Pizza kenarı yenir mi, yenmez mi?',
   'Bir günlüğüne başka bir hayvan olsan hangisi olurdun?',
   'Karaoke şarkın hazır mı? Hangisi?',
