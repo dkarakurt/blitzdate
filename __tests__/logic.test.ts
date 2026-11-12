@@ -221,3 +221,12 @@ describe('Türkçe ekler', () => {
     expect(genitive('Neşeli Kurbağa')).toBe("Neşeli Kurbağa'nın");
   });
 });
+
+describe('Buzkıran soruları', () => {
+  test('28 soru, hepsi farklı ve soru işaretiyle bitiyor', () => {
+    expect(ICEBREAKERS).toHaveLength(28);
+    expect(new Set(ICEBREAKERS).size).toBe(28);
+    for (const q of ICEBREAKERS) expect(q.trim().endsWith('?') || q.endsWith('cevap.')).toBe(true);
+    expect(ICEBREAKERS).toContain('Kedi insanı mısın, yoksa köpek insanı mı?');
+  });
+});

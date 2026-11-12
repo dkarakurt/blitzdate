@@ -34,16 +34,35 @@ export function decide(a: Vote, b: Vote, timeUp: boolean): DecisionOutcome {
 }
 
 export const ICEBREAKERS: readonly string[] = [
+  // İlk sorular kısa ve eğlenceli: 90 saniyenin başında buz hızlı kırılsın.
   'Pizza kenarı yenir mi, yenmez mi?',
   'Bir günlüğüne başka bir hayvan olsan hangisi olurdun?',
   'Karaoke şarkın hazır mı? Hangisi?',
-  'Sabah insanı mı, gece kuşu mu?',
-  'Hayatının film müziği hangi tür olurdu?',
   'Simit mi, poğaça mı? Tartışmasız cevap.',
   'Çay mı kahve mi, ve neden yanılıyorsun?',
   'Issız adaya tek bir şarkı götürsen?',
   'En son ne zaman kahkahadan gözün yaşardı?',
   'Hafta sonu planın: koltuk mu, kamp mı?',
+  'Şu an bir yere ışınlanabilsen nereye giderdin?',
+  'Son zamanlarda izleyip çok etkilendiğin film veya dizi hangisi?',
+  'Sence mükemmel bir hafta sonu nasıl geçer?',
+  'Çocukken en büyük hayalin neydi?',
+  'Hayatın boyunca tek bir yemek yiyecek olsan neyi seçerdin?',
+  'Hayatının bir tema müziği olsa bu hangi şarkı olurdu?',
+  'Bugün başına gelen en ilginç veya komik şey neydi?',
+  'Hangi süper güce sahip olmak isterdin?',
+  'Telefonda en çok vakit geçirdiğin uygulama hangisi?',
+  'Bugüne kadar yaptığın en spontane şey neydi?',
+  'Kimsenin bilmediği gizli bir yeteneğin var mı?',
+  'Sabah insanı mısın, yoksa tam bir gece kuşu mu?',
+  'Bugüne kadar izlediğin en berbat film hangisiydi?',
+  'En tahammül edemediğin, seni en çok sinir eden şey ne?',
+  'Hayatta "asla yapmam" dediğin bir şey var mı?',
+  'Modun düştüğünde seni anında ne keyiflendirir?',
+  'Kedi insanı mısın, yoksa köpek insanı mı?',
+  'Geçmişte yaşama şansın olsa hangi dönemi seçerdin?',
+  'Şans oyunundan büyük ikramiye çıksa ilk ne satın alırdın?',
+  'Bırakmak isteyip de bırakamadığın bir alışkanlığın var mı?',
 ];
 
 /**
