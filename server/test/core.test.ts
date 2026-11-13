@@ -1,5 +1,4 @@
-import { test } from 'vitest';
-import assert from 'node:assert/strict';
+import { expect, test } from 'vitest';
 import {
   applyVote,
   cafesFromOverpass,
@@ -22,9 +21,9 @@ test('isim adayı: Sıfat + Hayvan; çok denemeden sonra sayı eklenir', () => {
   let s = 1;
   const rng = () => ((s = (s * 16807) % 2147483647) / 2147483647);
   const a = candidateName(rng, 0);
-  assert.match(a.name, /^\S.* \S+$/);
-  assert.doesNotMatch(a.name, /\d/);
-  assert.match(candidateName(rng, 30).name, / \d+$/);
+  expect(a.name).toMatch(/^\S.* \S+$/);
+  expect(a.name).not.toMatch(/\d/);
+  expect(candidateName(rng, 30).name).toMatch(/ \d+$/);
 });
 
 test('radar: yalnızca karşı cins, taze, 1 km içi, engelsiz', () => {
@@ -37,57 +36,57 @@ test('radar: yalnızca karşı cins, taze, 1 km içi, engelsiz', () => {
     new Set(['e']),
     now,
   );
-  assert.deepEqual(hits.map((h) => h.uid), ['a']);
+  expect(hits.map((h) => h.uid)).toEqual(['a']);
 });
 
 test('mesafe yuvarlanır', () => {
-  assert.equal(roundDistance(4), 10);
-  assert.equal(roundDistance(78), 80);
-  assert.equal(roundDistance(412), 400);
+  expect(roundDistance(4)).toBe(10);
+  expect(roundDistance(78)).toBe(80);
+  expect(roundDistance(412)).toBe(400);
 });
 
 test('oda zamanları ve yazma penceresi', () => {
   const t = matchTimes(0);
-  assert.equal(t.roomStartsAt, STRIKE_COUNTDOWN_MS);
-  assert.equal(t.roomEndsAt - t.roomStartsAt, 90_000);
-  assert.equal(t.decisionEndsAt - t.roomEndsAt, 10_000);
-  assert.equal(canWrite('room', t, t.roomStartsAt - 1), false);
-  assert.equal(canWrite('room', t, t.roomStartsAt + 1), true);
-  assert.equal(canWrite('room', t, t.roomEndsAt), false);
-  assert.equal(canWrite('chat', t, t.roomEndsAt + 999_999), true);
-  assert.equal(isActive('room', t, t.decisionEndsAt + VOTE_GRACE_MS + 1), false);
+  expect(t.roomStartsAt).toBe(STRIKE_COUNTDOWN_MS);
+  expect(t.roomEndsAt - t.roomStartsAt).toBe(90_000);
+  expect(t.decisionEndsAt - t.roomEndsAt).toBe(10_000);
+  expect(canWrite('room', t, t.roomStartsAt - 1)).toBe(false);
+  expect(canWrite('room', t, t.roomStartsAt + 1)).toBe(true);
+  expect(canWrite('room', t, t.roomEndsAt)).toBe(false);
+  expect(canWrite('chat', t, t.roomEndsAt + 999_999)).toBe(true);
+  expect(isActive('room', t, t.decisionEndsAt + VOTE_GRACE_MS + 1)).toBe(false);
 });
 
 test('oylama: ikisi de devam → sohbet; biri ayrılırsa kapanır; zaman dışı reddedilir', () => {
   const t = matchTimes(0);
   const users: [string, string] = ['a', 'b'];
   const now = t.roomEndsAt + 1000;
-  assert.equal(applyVote('room', t, users, {}, 'a', 'continue', t.roomStartsAt).kind, 'rejected');
+  expect(applyVote('room', t, users, {}, 'a', 'continue', t.roomStartsAt).kind).toBe('rejected');
   const r1 = applyVote('room', t, users, {}, 'a', 'continue', now);
-  assert.equal(r1.kind, 'pending');
+  expect(r1.kind).toBe('pending');
   const r2 = applyVote('room', t, users, { a: 'continue' }, 'b', 'continue', now);
-  assert.equal(r2.kind, 'chat');
-  assert.equal(applyVote('room', t, users, { a: 'continue' }, 'b', 'leave', now).kind, 'closed');
-  assert.equal(applyVote('room', t, users, {}, 'x', 'continue', now).kind, 'rejected');
-  assert.equal(applyVote('room', t, users, {}, 'a', 'continue', t.decisionEndsAt + VOTE_GRACE_MS + 1).kind, 'rejected');
-  assert.equal(applyVote('chat', t, users, {}, 'a', 'continue', now).kind, 'rejected');
+  expect(r2.kind).toBe('chat');
+  expect(applyVote('room', t, users, { a: 'continue' }, 'b', 'leave', now).kind).toBe('closed');
+  expect(applyVote('room', t, users, {}, 'x', 'continue', now).kind).toBe('rejected');
+  expect(applyVote('room', t, users, {}, 'a', 'continue', t.decisionEndsAt + VOTE_GRACE_MS + 1).kind).toBe('rejected');
+  expect(applyVote('chat', t, users, {}, 'a', 'continue', now).kind).toBe('rejected');
 });
 
 test('snap doğrulama: tek hak, JPEG, boyut, tazelik', () => {
   const jpeg = '/9j/' + 'A'.repeat(500);
   const now = 10_000_000;
-  assert.deepEqual(checkSnap(0, jpeg, now - 1000, now), { ok: true });
-  assert.equal((checkSnap(1, jpeg, now, now) as { reason: string }).reason, 'no-snaps-left');
-  assert.equal((checkSnap(0, 'iVBOR' + 'A'.repeat(500), now, now) as { reason: string }).reason, 'not-jpeg');
-  assert.equal((checkSnap(0, '/9j/' + 'A'.repeat(950_000), now, now) as { reason: string }).reason, 'too-large');
-  assert.equal((checkSnap(0, jpeg, now - 10 * 60_000, now) as { reason: string }).reason, 'too-old');
+  expect(checkSnap(0, jpeg, now - 1000, now)).toEqual({ ok: true });
+  expect((checkSnap(1, jpeg, now, now) as { reason: string }).reason).toBe('no-snaps-left');
+  expect((checkSnap(0, 'iVBOR' + 'A'.repeat(500), now, now) as { reason: string }).reason).toBe('not-jpeg');
+  expect((checkSnap(0, '/9j/' + 'A'.repeat(950_000), now, now) as { reason: string }).reason).toBe('too-large');
+  expect((checkSnap(0, jpeg, now - 10 * 60_000, now) as { reason: string }).reason).toBe('too-old');
 });
 
 test('metin temizleme', () => {
-  assert.equal(cleanText('  a   b '), 'a b');
-  assert.equal(cleanText(''), null);
-  assert.equal(cleanText(5), null);
-  assert.equal(cleanText('x'.repeat(400))!.length, 280);
+  expect(cleanText('  a   b ')).toBe('a b');
+  expect(cleanText('')).toBe(null);
+  expect(cleanText(5)).toBe(null);
+  expect(cleanText('x'.repeat(400))!.length).toBe(280);
 });
 
 test('Overpass sonucundan ikisine de yakın kafeler', () => {
@@ -99,6 +98,6 @@ test('Overpass sonucundan ikisine de yakın kafeler', () => {
     { id: 3, lat: off(3000, 0).lat, lon: off(3000, 0).lng, tags: { name: 'Uzak' } },
     { id: 4, lat: base.lat, lon: base.lng, tags: {} },
   ]);
-  assert.deepEqual(cafes.map((c) => c.venue.name), ['Orta', 'Yakın']);
-  assert.deepEqual(cafes[0].venue.tags, ['Açık hava']);
+  expect(cafes.map((c) => c.venue.name)).toEqual(['Orta', 'Yakın']);
+  expect(cafes[0].venue.tags).toEqual(['Açık hava']);
 });
