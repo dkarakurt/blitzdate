@@ -74,6 +74,24 @@ jobs:
           cache-dependency-path: server/package-lock.json
       - if: steps.check.outputs.ok == 'true'
         run: npm ci && npm run sync-shared
+      - name: Anahtar izin kontrolü
+        if: steps.check.outputs.ok == 'true'
+        run: |
+          api="https://api.cloudflare.com/client/v4"
+          probe() {
+            out=$(curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$api$2")
+            echo "$out" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{let j={};try{j=JSON.parse(s)}catch{};const e=(j.errors||[]).map(x=>x.code+" "+x.message).join("; ");console.log((j.success?"✓":"✗")+" "+process.argv[1]+(e?"  → "+e:""))})' "$1"
+          }
+          probe "Anahtar geçerli"              "/user/tokens/verify"
+          probe "Hesap okunuyor"               "/accounts/$CLOUDFLARE_ACCOUNT_ID"
+          probe "Workers Scripts (liste)"      "/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts"
+          probe "workers.dev alt alan adı"     "/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain"
+          probe "D1"                           "/accounts/$CLOUDFLARE_ACCOUNT_ID/d1/database"
+          probe "Durable Objects"              "/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/durable_objects/namespaces"
+          probe "Alan adları (zone)"           "/zones?name=dilakarakurt.com"
+          probe "Worker özel alan adları"      "/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/domains"
+          echo "Mevcut Worker'lar:"
+          curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$api/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{for(const w of JSON.parse(s).result||[])console.log("  - "+w.id)}catch{}})'
       - name: Veritabanı (D1) yoksa oluştur, kimliğini ayara yaz
         if: steps.check.outputs.ok == 'true'
         run: |
