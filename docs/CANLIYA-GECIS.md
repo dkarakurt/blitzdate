@@ -42,18 +42,11 @@ Sonraki her push'ta sunucu ve APK kendiliğinden güncellenir.
 
 ### 5. Kendi alan adı (Türkiye için ŞART)
 
-`*.workers.dev` adresleri Türkiye'den erişime kapalı (tarayıcı bazen açar, uygulama açamaz). Bu yüzden sunucu kendi alan adının altında, `api.<alan-adın>` adresinde çalışmalı.
+`*.workers.dev` adresleri Türkiye'den erişime kapalı (tarayıcı bazen açar, uygulama açamaz). Sunucu bu yüzden özel alan adında çalışır: **https://fink.dilakarakurt.com**
 
-1. **Alan adını Cloudflare'e ekle.**
-   - Cloudflare'den satın aldıysan (Domain Registration) zaten ekli, bu adımı atla.
-   - Başka yerden aldıysan: Cloudflare paneli → **Add a domain** → alan adını yaz → **Free** planı seç. Cloudflare iki "nameserver" adresi verir; alan adını aldığın firmanın panelinde nameserver'ları bu ikisiyle değiştir. Etkinleşmesi birkaç dakika ile birkaç saat sürer (Cloudflare e-postayla haber verir).
-2. **API anahtarına alan adı izni ver.** My Profile → API Tokens → anahtarın → Edit:
-   - İzinlerde **Zone → Workers Routes → Edit** ve **Zone → DNS → Edit** olsun (yoksa ekle).
-   - **Zone Resources:** "All zones" ya da alan adın seçili olsun.
-3. **GitHub'a alan adını yaz.** Depo → Settings → Secrets and variables → Actions → **Variables** sekmesi → **New repository variable**: ad `FINK_DOMAIN`, değer yalnızca alan adı (ör. `fink.app`, başında `api.` ya da `https://` olmadan).
-4. **Actions → Sunucu (Cloudflare) → Run workflow**, bitince **Actions → Android APK → Run workflow**. Sunucu `https://api.<alan-adın>` adresine bağlanır, APK bu adresle derlenir.
-
-> Tam adresi elle vermek istersen `FINK_API_URL` değişkeni de kullanılabilir; APK derlemesi önce onu kullanır.
+- Alan adı Cloudflare panelinden bağlandı: Workers & Pages → `fink-api` → Settings → Domains & Routes → Custom domain. Yayınlama bu bağlantıya dokunmaz.
+- Adres iş akışlarında varsayılan olarak yazılı. Değiştirmek için depo → Settings → Secrets and variables → Actions → **Variables** → `FINK_API_URL` (ör. `https://api.baska-alan.com`).
+- Her yayından sonra sunucu iş akışı bu adreste sağlık kontrolü ve canlı duman testi yapar.
 
 ## Ücretsiz plan neye yeter?
 
