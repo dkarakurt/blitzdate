@@ -89,6 +89,7 @@ jobs:
         if: steps.check.outputs.ok == 'true'
         run: npx wrangler deploy -c wrangler.generated.jsonc
       - name: Sağlık kontrolü
+        id: live
         if: steps.check.outputs.ok == 'true'
         run: |
           sub=$(curl -sf -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).result.subdomain))')
@@ -96,3 +97,17 @@ jobs:
           for i in $(seq 1 10); do curl -sf "$url/v1/health" && break; sleep 3; done
           echo
           echo "::notice::Sunucu yayında: $url"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+      - name: Canlı duman testi (kayıt → profil → konum → radar → hesap silme)
+        if: steps.check.outputs.ok == 'true'
+        run: |
+          url="${{ steps.live.outputs.url }}"
+          t() { /usr/bin/time -f "  %es" "$@"; }
+          echo "kayıt:"; reg=$(t curl -sS -m 25 -X POST "$url/v1/register" -H 'Content-Type: application/json' -d '{"gender":"female","adultConfirmed":true,"termsVersion":"2026-11-11"}'); echo "$reg"
+          tok=$(echo "$reg" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).token||""))')
+          [ -n "$tok" ] || { echo "::error::Kayıt başarısız"; exit 1; }
+          echo "profil:"; t curl -sS -m 25 "$url/v1/me" -H "Authorization: Bearer $tok"; echo
+          echo "konum:"; t curl -sS -m 25 -X POST "$url/v1/presence" -H "Authorization: Bearer $tok" -H 'Content-Type: application/json' -d '{"lat":41.0,"lng":29.0}'; echo
+          echo "radar:"; t curl -sS -m 25 "$url/v1/nearby" -H "Authorization: Bearer $tok"; echo
+          echo "silme:"; t curl -sS -m 25 -X DELETE "$url/v1/me" -H "Authorization: Bearer $tok"; echo
+          echo "::notice::Canlı duman testi geçti"
