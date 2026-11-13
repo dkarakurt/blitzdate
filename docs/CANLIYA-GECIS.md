@@ -1,6 +1,6 @@
 # Canlıya geçiş: Cloudflare
 
-Fink'in sunucusu Cloudflare'de çalışır. Kart bilgisi gerekmez; ücretsiz plan sınırı aşılırsa fatura çıkmaz, o gün için istekler reddedilir.
+Fink'in sunucusu Cloudflare'de çalışır. Sunucu için kart bilgisi gerekmez; ücretsiz plan sınırı aşılırsa fatura çıkmaz, o gün için istekler reddedilir. Türkiye'den erişim için ayrıca bir alan adı gerekir (5. adım).
 
 | Parça | Ne yapar | Nerede |
 |---|---|---|
@@ -40,7 +40,20 @@ Depo → **Settings → Secrets and variables → Actions → New repository sec
 
 Sonraki her push'ta sunucu ve APK kendiliğinden güncellenir.
 
-> Kendi alan adını kullanmak istersen (örn. `api.fink.app`) Worker'a özel alan adı bağla ve depo ayarlarında **Variables** altında `FINK_API_URL` değişkenine bu adresi yaz. APK derlemesi önce bunu kullanır.
+### 5. Kendi alan adı (Türkiye için ŞART)
+
+`*.workers.dev` adresleri Türkiye'den erişime kapalı (tarayıcı bazen açar, uygulama açamaz). Bu yüzden sunucu kendi alan adının altında, `api.<alan-adın>` adresinde çalışmalı.
+
+1. **Alan adını Cloudflare'e ekle.**
+   - Cloudflare'den satın aldıysan (Domain Registration) zaten ekli, bu adımı atla.
+   - Başka yerden aldıysan: Cloudflare paneli → **Add a domain** → alan adını yaz → **Free** planı seç. Cloudflare iki "nameserver" adresi verir; alan adını aldığın firmanın panelinde nameserver'ları bu ikisiyle değiştir. Etkinleşmesi birkaç dakika ile birkaç saat sürer (Cloudflare e-postayla haber verir).
+2. **API anahtarına alan adı izni ver.** My Profile → API Tokens → anahtarın → Edit:
+   - İzinlerde **Zone → Workers Routes → Edit** ve **Zone → DNS → Edit** olsun (yoksa ekle).
+   - **Zone Resources:** "All zones" ya da alan adın seçili olsun.
+3. **GitHub'a alan adını yaz.** Depo → Settings → Secrets and variables → Actions → **Variables** sekmesi → **New repository variable**: ad `FINK_DOMAIN`, değer yalnızca alan adı (ör. `fink.app`, başında `api.` ya da `https://` olmadan).
+4. **Actions → Sunucu (Cloudflare) → Run workflow**, bitince **Actions → Android APK → Run workflow**. Sunucu `https://api.<alan-adın>` adresine bağlanır, APK bu adresle derlenir.
+
+> Tam adresi elle vermek istersen `FINK_API_URL` değişkeni de kullanılabilir; APK derlemesi önce onu kullanır.
 
 ## Ücretsiz plan neye yeter?
 

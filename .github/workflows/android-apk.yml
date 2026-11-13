@@ -45,8 +45,10 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           API_URL_OVERRIDE: ${{ vars.FINK_API_URL }}
+          FINK_DOMAIN: ${{ vars.FINK_DOMAIN }}
         run: |
           url="$API_URL_OVERRIDE"
+          if [ -z "$url" ] && [ -n "$FINK_DOMAIN" ]; then url="https://api.$FINK_DOMAIN"; fi
           if [ -z "$url" ] && [ -n "$CLOUDFLARE_API_TOKEN" ] && [ -n "$CLOUDFLARE_ACCOUNT_ID" ]; then
             sub=$(curl -sf -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{process.stdout.write(JSON.parse(s).result.subdomain||"")}catch{}})')
             [ -n "$sub" ] && url="https://fink-api.$sub.workers.dev"
