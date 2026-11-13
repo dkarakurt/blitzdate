@@ -17,6 +17,7 @@ export function friendlyError(e: unknown): string {
     return e.message || 'Bir şeyler ters gitti. Tekrar dene.';
   }
   const msg = (e as Error)?.message ?? '';
-  if (/network|failed to fetch|timeout|aborted/i.test(msg)) return 'Bağlantı yok. İnternetini kontrol et.';
+  if (/cancel|aborted|timeout|timed out/i.test(msg)) return 'Sunucuya ulaşılamadı. Bağlantını kontrol edip tekrar dene.';
+  if (/network|failed to fetch|fetch failed|unable to resolve|connect/i.test(msg)) return 'Bağlantı yok. İnternetini kontrol et.';
   return msg && msg.length < 120 ? msg : 'Bir şeyler ters gitti. Tekrar dene.';
 }
