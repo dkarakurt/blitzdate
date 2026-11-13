@@ -4,6 +4,8 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-11-01",
   "workers_dev": true,
+  // Türkiye'den erişilen adres (workers.dev engelli). Alan adı aynı Cloudflare hesabında olmalı.
+  "routes": [{ "pattern": "fink.dilakarakurt.com", "custom_domain": true }],
   "observability": { "enabled": true },
   "vars": { "DO_JURISDICTION": "eu" },
   "d1_databases": [

@@ -44,7 +44,9 @@ Sonraki her push'ta sunucu ve APK kendiliğinden güncellenir.
 
 `*.workers.dev` adresleri Türkiye'den erişime kapalı (tarayıcı bazen açar, uygulama açamaz). Sunucu bu yüzden özel alan adında çalışır: **https://fink.dilakarakurt.com**
 
-- Alan adı Cloudflare panelinden bağlandı: Workers & Pages → `fink-api` → Settings → Domains & Routes → Custom domain. Yayınlama bu bağlantıya dokunmaz.
+- Alan adı `server/wrangler.jsonc` içindeki `routes` ile her yayında Worker'a otomatik bağlanır. **Alan adı (dilakarakurt.com) ile sunucu aynı Cloudflare hesabında olmalı**; GitHub'daki `CLOUDFLARE_API_TOKEN` ve `CLOUDFLARE_ACCOUNT_ID` bu hesaba ait olmalı.
+- API anahtarında ayrıca **Zone → DNS → Edit** ve **Zone → Workers Routes → Edit** izinleri, Zone Resources'ta da alan adı olmalı.
+- `fink.dilakarakurt.com` için elle eklenmiş bir DNS kaydı ya da başka bir Worker/Pages bağlantısı varsa önce silinmeli (çakışma olur).
 - Adres iş akışlarında varsayılan olarak yazılı. Değiştirmek için depo → Settings → Secrets and variables → Actions → **Variables** → `FINK_API_URL` (ör. `https://api.baska-alan.com`).
 - Her yayından sonra sunucu iş akışı bu adreste sağlık kontrolü ve canlı duman testi yapar.
 
