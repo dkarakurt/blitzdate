@@ -1,0 +1,25 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "fink-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": true,
+  "observability": { "enabled": true },
+  "vars": { "DO_JURISDICTION": "eu" },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "fink-db",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      { "name": "HUB", "class_name": "RadarHub" },
+      { "name": "ROOM", "class_name": "MatchRoom" }
+    ]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["RadarHub", "MatchRoom"] }],
+  "triggers": { "crons": ["*/10 * * * *"] }
+}

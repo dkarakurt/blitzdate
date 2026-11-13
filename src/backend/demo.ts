@@ -1,5 +1,5 @@
 /**
- * DEMO SUNUCU — Firebase ayarları yokken ve testlerde kullanılır.
+ * DEMO SUNUCU — sunucu adresi yokken ve testlerde kullanılır.
  * Gerçek sunucunun kurallarını cihaz içinde taklit eder; karşı taraf otomatik davranır.
  */
 import { NameRegistry } from '../logic/names';

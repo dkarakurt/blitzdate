@@ -7,7 +7,5 @@ const from = join(here, '..', '..', 'src', 'logic');
 const to = join(here, '..', 'src', 'shared');
 mkdirSync(to, { recursive: true });
 for (const f of ['names.ts', 'radar.ts', 'room.ts', 'meet.ts', 'snap.ts']) {
-  const src = readFileSync(join(from, f), 'utf8');
-  writeFileSync(join(to, f), '// OTOMATİK KOPYA — düzenleme: ../../src/logic/' + f + '\n' + src);
+  writeFileSync(join(to, f), '// OTOMATİK KOPYA — düzenleme: ../../../src/logic/' + f + '\n' + readFileSync(join(from, f), 'utf8'));
 }
-console.log('shared synced');

@@ -9,6 +9,7 @@
   "exclude": [
     "node_modules",
     "functions",
-    "rules-tests"
+    "rules-tests",
+    "server"
   ]
 }

@@ -14,7 +14,7 @@ export const STRIKE_TTL_MS = 5 * 60_000;
 export const STRIKE_COUNTDOWN_MS = 3500;
 export const VOTE_GRACE_MS = 3000;
 export const MEET_MAX_DISTANCE_M = 2000;
-export const MAX_SNAP_BASE64 = 900_000; // Firestore belge sınırı 1 MiB
+export const MAX_SNAP_BASE64 = 900_000; // ~650 KB JPEG; istemci 640 px'e küçültür (~100 KB)
 export const CLOSED_MATCH_RETENTION_MS = 30 * 24 * 3600_000;
 export const UNOPENED_SNAP_TTL_MS = 24 * 3600_000;
 

@@ -1,6 +1,6 @@
-# fink. (v0.1 — demo)
+# fink. (v0.2)
 
-Anonim, anlık, 90 saniyelik çöpçatan uygulaması. Expo (React Native + TypeScript).
+Anonim, anlık, 90 saniyelik çöpçatan uygulaması. Uygulama Expo (React Native + TypeScript), sunucu Cloudflare (Workers + D1 + Durable Objects).
 
 **Marka:** tavşan logosu, sarı `#FFFF00` + gece laciverti `#14122B`, başlık fontu Fredoka (Türkçe harfler eklenmiş sürüm `assets/fonts/`, OFL 1.1), metin fontu Inter.
 
@@ -16,7 +16,7 @@ Anonim, anlık, 90 saniyelik çöpçatan uygulaması. Expo (React Native + TypeS
 | İkinci Şans: kibar veda şablonları | ✅ |
 | BlitzSnap: yalnızca canlı kamera, 5 sn görüntüleme, eşleşme başına 1 hak | ✅ gerçek kamera; Android'de ekran görüntüsü engeli |
 
-**Canlı / demo:** Firebase ayarları derlemeye eklendiyse uygulama gerçek konum ve gerçek kişilerle çalışır (`src/backend/live.ts`, sunucu `functions/`). Ayar yoksa cihaz içi demo sunucu kullanılır (`src/backend/demo.ts`). Kurulum: [docs/CANLIYA-GECIS.md](docs/CANLIYA-GECIS.md).
+**Canlı / demo:** Derlemede `EXPO_PUBLIC_API_URL` varsa uygulama Cloudflare'deki sunucuya bağlanır, gerçek konum ve gerçek kişilerle çalışır (`src/backend/live.ts`, sunucu `server/`). Yoksa cihaz içi demo sunucu kullanılır (`src/backend/demo.ts`). Kurulum: [docs/CANLIYA-GECIS.md](docs/CANLIYA-GECIS.md).
 
 ## APK alma
 
@@ -31,7 +31,7 @@ npx eas-cli@latest build -p android --profile preview
 Derleme bitince terminal bir indirme linki/QR kodu verir; telefondan açıp APK'yı kur.
 
 **2. GitHub Actions**
-Projeyi bir GitHub deposuna gönder. `.github/workflows/android-apk.yml` her push'ta testleri çalıştırır, APK'yı derler ve "Actions → blitzdate-apk (Fink APK)" altında indirilebilir bırakır.
+Projeyi bir GitHub deposuna gönder. `.github/workflows/android-apk.yml` her push'ta testleri çalıştırır, APK'yı derler ve "Actions → Android APK → fink-apk" altında indirilebilir bırakır.
 
 **3. Kendi bilgisayarında (Android Studio + JDK 17 kurulu)**
 ```bash
@@ -47,7 +47,8 @@ cd android && ./gradlew assembleRelease
 
 ```bash
 npm install
-npm test            # 41 test: kurallar, akış, ekranlar
+npm test            # 43 test: kurallar, akış, ekranlar
+cd server && npm test   # 24 sunucu testi
 npm run typecheck
 npx expo run:android   # cihaz/emülatörde geliştirme sürümü
 ```
@@ -55,9 +56,8 @@ npx expo run:android   # cihaz/emülatörde geliştirme sürümü
 ## Yapı
 
 ```
-src/backend/    Sunucu arayüzü: live (Firebase) ve demo
-functions/      Cloud Functions (europe-west1) + birim testleri
-firestore.rules Güvenlik kuralları (testleri: rules-tests/, emülatörle)
+src/backend/    Sunucu arayüzü: live (Cloudflare, HTTPS + WebSocket) ve demo
+server/         Cloudflare Worker, D1 şeması, Durable Object'ler (RadarHub, MatchRoom) + testler
 src/logic/      Saf kurallar (isimler, radar, oda/karar, snap, meet, veda, Türkçe ekler)
 src/state/      Uygulama durum makinesi (reducer)
 src/demo/       Demo dünyası ve simüle karşı taraf
@@ -69,6 +69,6 @@ __tests__/      Birim, akış ve uçtan uca ekran testleri
 ## Bilinen sınırlar
 
 - **iOS'ta ekran görüntüsü engellenemez**, yalnızca algılanır (uygulama kullanıcıyı uyarır). Android'de engellenir. Başka bir telefonla ekranı fotoğraflamak hiçbir platformda engellenemez.
-- Canlı çekim garantisi şu an uygulama içinde (galeri seçici yok + 60 sn yaş kontrolü). Sunucu tarafında cihaz doğrulaması (Play Integrity / App Attest) backend ile gelecek.
-- Kafeler örnek veridir; gerçek kafe verisi (harita servisi) backend ile bağlanacak.
+- Canlı çekim garantisi uygulama içinde (galeri seçici yok + 60 sn yaş kontrolü); sunucu tarafında cihaz doğrulaması (Play Integrity / App Attest) henüz yok.
+- Kafeler canlı sürümde OpenStreetMap'ten gelir; demo sürümde örnek veridir.
 - Klavye: `react-native-keyboard-controller` ile yazı alanı klavyenin üstünde kalır.

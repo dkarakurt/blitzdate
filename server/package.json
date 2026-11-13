@@ -1,0 +1,20 @@
+{
+  "name": "fink-server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync-shared": "node scripts/sync-shared.mjs",
+    "typecheck": "npm run sync-shared && tsc --noEmit",
+    "test": "npm run sync-shared && vitest run",
+    "dev": "npm run sync-shared && wrangler dev",
+    "deploy": "npm run sync-shared && wrangler deploy",
+    "e2e:build": "npx esbuild e2e/client-e2e.ts --bundle --platform=node --format=esm --target=node22 --outfile=e2e/out.mjs"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "^1.8.1",
+    "@cloudflare/workers-types": "^5.20261113.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.12",
+    "wrangler": "^4.161.0"
+  }
+}

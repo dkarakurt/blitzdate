@@ -1,4 +1,4 @@
-import { test } from 'node:test';
+import { test } from 'vitest';
 import assert from 'node:assert/strict';
 import {
   applyVote,
@@ -13,7 +13,7 @@ import {
   roundDistance,
   STRIKE_COUNTDOWN_MS,
   VOTE_GRACE_MS,
-} from '../core';
+} from '../src/core';
 
 const base = { lat: 40.9903, lng: 29.029 };
 const off = (n: number, e: number) => ({ lat: base.lat + n / 111320, lng: base.lng + e / (111320 * Math.cos((base.lat * Math.PI) / 180)) });

@@ -1,69 +1,89 @@
-# Fink — Canlıya geçiş rehberi
+# Canlıya geçiş: Cloudflare
 
-Uygulama, Firebase ayarları derlemeye eklenince **canlı sunucuya** bağlanır; eklenmezse **demo modunda** çalışır.
-Aşağıdaki adımlar bir kez yapılır. Sonrasında `main` dalına gelen her değişiklikte GitHub sunucuyu ve APK'yı otomatik günceller.
+Fink'in sunucusu Cloudflare'de çalışır. Kart bilgisi gerekmez; ücretsiz plan sınırı aşılırsa fatura çıkmaz, o gün için istekler reddedilir.
 
-## 1. Firebase projesi
+| Parça | Ne yapar | Nerede |
+|---|---|---|
+| **Worker** (`fink-api`) | HTTPS API ve WebSocket girişi | `server/src/index.ts` |
+| **D1** (`fink-db`, SQLite) | Hesaplar (anonim) ve şikayetler | `server/migrations/` |
+| **RadarHub** (Durable Object) | Kim çevrimiçi, kim nerede, çarpmalar, engeller, eşleşme bildirimi | `server/src/hub.ts` |
+| **MatchRoom** (Durable Object, eşleşme başına bir tane) | 90 sn oda, mesajlar, oylar, BlitzSnap | `server/src/room.ts` |
 
-1. https://console.firebase.google.com → **Proje oluştur** (ör. `fink-app`). Google Analytics gerekmez.
-2. Sol altta **Spark → Yükselt → Blaze**. Faturalandırma hesabı bağla.
-   - **Bütçe uyarısı kur:** Google Cloud → Faturalandırma → Bütçeler ve uyarılar → ör. aylık 5 $ ve %50/%90/%100 e-posta uyarısı. (Blaze'de kesin harcama sınırı yoktur; uyarı şarttır.)
-3. **Authentication** → Başlayın → Oturum açma yöntemi → **Anonim** → Etkinleştir.
-4. **Firestore Database** → Veritabanı oluştur → **Üretim modu** → konum: **eur3 (europe-west)**.
-   (Cloud Functions `europe-west1` bölgesinde çalışır.)
-5. **Proje ayarları → Genel → Uygulamalarınız → Web (</>)** → takma ad "Fink" → Kaydet.
-   Gösterilen yapılandırmadan şu 4 değeri not al: `apiKey`, `projectId`, `appId`, `messagingSenderId`.
+Veriler AB'de durur: D1 Batı Avrupa'da (`weur`) açılır, Durable Object'ler AB yargı alanına (`eu`) kilitlidir.
 
-## 2. Dağıtım için hizmet hesabı
+## Senin yapacakların (bir kez, ~10 dakika)
 
-1. https://console.cloud.google.com → aynı projeyi seç → **IAM ve Yönetici → Hizmet hesapları → Hizmet hesabı oluştur**: `github-deploy`.
-2. Rolleri ver:
-   - **Düzenleyici** (Editor)
-   - **Cloud Functions Yöneticisi** (Cloud Functions Admin)
-   - **Cloud Run Yöneticisi** (Cloud Run Admin)
-3. Hesaba tıkla → **Anahtarlar → Anahtar ekle → JSON**. İnen dosyayı kimseyle paylaşma.
+### 1. Cloudflare hesabı
+1. https://dash.cloudflare.com/sign-up adresinden ücretsiz hesap aç (alan adı gerekmez).
+2. Soldan **Workers & Pages**'e bir kez gir. Cloudflare sana `xxx.workers.dev` alt alan adı seçtirir; bunu onayla. Sunucunun adresi `https://fink-api.xxx.workers.dev` olacak.
+3. Aynı sayfada sağ tarafta **Account ID** yazar; kopyala.
 
-## 3. GitHub gizli değişkenleri
+### 2. API anahtarı (token)
+1. Sağ üstte profil → **My Profile → API Tokens → Create Token**.
+2. **Edit Cloudflare Workers** şablonunu seç → **Use template**.
+3. İzinlere bir satır ekle: **Account → D1 → Edit**.
+4. **Account Resources:** kendi hesabın. **Zone Resources:** All zones (alan adın yoksa önemli değil).
+5. **Continue to summary → Create Token**. Çıkan anahtarı kopyala (bir daha gösterilmez).
 
-https://github.com/dkarakurt/blitzdate → **Settings → Secrets and variables → Actions → New repository secret**:
+### 3. GitHub'a iki gizli değer ekle
+Depo → **Settings → Secrets and variables → Actions → New repository secret**:
 
 | Ad | Değer |
 |---|---|
-| `FIREBASE_PROJECT_ID` | `projectId` |
-| `FIREBASE_API_KEY` | `apiKey` |
-| `FIREBASE_APP_ID` | `appId` |
-| `FIREBASE_MESSAGING_SENDER_ID` | `messagingSenderId` |
-| `FIREBASE_SERVICE_ACCOUNT` | JSON anahtar dosyasının **tüm içeriği** |
+| `CLOUDFLARE_API_TOKEN` | 2. adımdaki anahtar |
+| `CLOUDFLARE_ACCOUNT_ID` | 1. adımdaki Account ID |
 
-## 4. Yayına al
+### 4. Yayınla ve APK al
+1. **Actions → Sunucu (Cloudflare) → Run workflow**. Testleri çalıştırır, veritabanını oluşturur, sunucuyu yayınlar ve sonunda "Sunucu yayında: https://fink-api.….workers.dev" yazar.
+2. Ardından **Actions → Android APK → Run workflow**. Sunucu adresini Cloudflare'den kendisi bulur ve APK'yı **canlı** modda derler (adım çıktısında "Canlı sürüm derleniyor" yazar).
+3. APK'yı iki telefona kur, ikisinde de konum iznini ver, birbirine 1 km'den yakın olun: radarda birbirinizi görürsünüz.
 
-1. **Actions → Sunucu (Firebase) → Run workflow**: testler + Firestore kuralları, indeksler ve Cloud Functions dağıtılır (ilk seferde ~10 dk).
-2. **Actions → Android APK → Run workflow**: canlı sunucuya bağlı APK derlenir.
-3. İki telefonla dene: biri "Kadın", biri "Erkek" seçsin, birbirine 1 km'den yakın olsun.
+Sonraki her push'ta sunucu ve APK kendiliğinden güncellenir.
 
-## Sunucu ne yapıyor
+> Kendi alan adını kullanmak istersen (örn. `api.fink.app`) Worker'a özel alan adı bağla ve depo ayarlarında **Variables** altında `FINK_API_URL` değişkenine bu adresi yaz. APK derlemesi önce bunu kullanır.
 
-| Fonksiyon | Görev |
-|---|---|
-| `register`, `reroll` | 18+ ve koşul onayıyla kayıt; benzersiz "Sıfat + Hayvan" ismi |
-| `nearby` | 1 km içindeki, son 3 dk'da görülen karşı cins; engellenenler ve meşguller hariç; mesafe yuvarlanır |
-| `strike` | Karşılıklı çarpmada oda açar (3,5 sn sayaç + 90 sn oda + 10 sn karar) |
-| `vote` | İkisi de "Devam" → sonsuz sohbet; biri ayrılırsa/süre biterse oda kapanır |
-| `sendSnap`, `openSnap` | Eşleşme başına tek canlı fotoğraf; açıldığı an sunucudan silinir |
-| `meetSuggestions` | İki kişiye de ≤700 m halka açık kafeler (OpenStreetMap) |
-| `farewell`, `block`, `report` | Kibar veda; engelleme; şikayet (+ engelleme) |
-| `deleteAccount` | Hesap, isim, konum ve ilgili kayıtları siler |
-| `cleanup` (10 dk'da bir) | Süresi geçen odalar, eski konumlar, açılmamış snap'ler (24 sa), 30 günlük kapanmış sohbetler |
+## Ücretsiz plan neye yeter?
 
-## Moderasyon
+| Kaynak | Günlük ücretsiz | Fink'te kabaca kullanım |
+|---|---|---|
+| Worker isteği | 100.000 | Radardaki kişi başına dakikada ~5 istek |
+| Durable Object isteği | 100.000 | Her API çağrısı ve WebSocket mesajı |
+| D1 okuma / yazma | 5 milyon / 100.000 | Her istekte 1 okuma (oturum kontrolü) |
 
-Şikayetler Firestore'da **`reports`** koleksiyonuna düşer (`reason`, `by`, `target`, `matchId`, `status: open`).
-Şimdilik Firebase konsolundan takip edilir; ciddi vakalarda kullanıcının `users/{uid}` belgesi ve Authentication kaydı silinerek hesap kapatılır.
-"18 yaşından küçük olabilir" şikayetleri öncelikli incelenmeli.
+Yaklaşık **günde birkaç yüz aktif kullanıcıya** kadar ücretsiz plan yeter. Sınıra yaklaşınca Workers Paid planına (aylık 5 $) geçmek yeterli; kod değişmez.
 
-## Google Play'e yüklemeden önce
+## Şikayetleri inceleme (moderasyon)
 
-- **Gizlilik politikası URL'si** ve **hesap silme URL'si** (Play Console, Veri güvenliği formu). Uygulama içindeki KVKK metni bir web sayfasında da yayınlanmalı.
-- Uygulama içi metinlerdeki `[ŞİRKET UNVANI]`, `[ADRES]`, `[İLETİŞİM E-POSTASI]` alanları doldurulmalı; metinler bir hukukçuya kontrol ettirilmeli (özellikle KVKK m.9 yurt dışı aktarım).
-- İçerik derecelendirmesi: flört uygulaması, 18+.
-- Kalıcı bir imza anahtarı (şu anki APK test anahtarıyla imzalı) ve `production` profilinde AAB.
+Cloudflare paneli → **Storage & Databases → D1 → fink-db → Console**:
+
+```sql
+-- açık şikayetler
+SELECT r.id, r.reason, r.note, r.at, u.name AS sikayet_edilen
+FROM reports r JOIN users u ON u.id = r.target
+WHERE r.status = 'open' ORDER BY r.at DESC;
+
+-- incelendi olarak işaretle
+UPDATE reports SET status = 'closed' WHERE id = '…';
+
+-- bir hesabı kapat (oturumu geçersiz olur, radardan düşer)
+DELETE FROM users WHERE id = '…';
+```
+
+## Yerelde çalıştırma (geliştirici)
+
+```bash
+cd server
+npm ci
+npm test                                   # 24 test (gerçek Workers çalışma ortamında)
+npx wrangler d1 migrations apply fink-db --local
+npm run dev -- --var DO_JURISDICTION:      # http://127.0.0.1:8787
+npm run e2e:build && node e2e/out.mjs http://127.0.0.1:8787   # uygulamanın istemci koduyla uçtan uca
+```
+
+Uygulamayı yerel sunucuya bağlamak için: `EXPO_PUBLIC_API_URL=http://<bilgisayarın-IP'si>:8787 npx expo run:android`.
+
+## Henüz yapılmayanlar
+
+- Uygulama kapalıyken eşleşme bildirimi (push) yok; radar zaten yalnızca uygulama açıkken çalışıyor.
+- Cihaz doğrulaması (Play Integrity / App Attest) yok; BlitzSnap'in canlı çekim kontrolü uygulama içinde.
+- Hız sınırlama Cloudflare'in varsayılan korumasına bırakıldı; kötüye kullanım görülürse Worker'a eklenir.

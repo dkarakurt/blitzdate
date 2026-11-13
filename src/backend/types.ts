@@ -4,8 +4,8 @@ import type { CafeSuggestion } from '../logic/meet';
 
 /**
  * Uygulamanın sunucuyla konuştuğu tek arayüz.
- * - LiveBackend: Firebase (canlı)
- * - DemoBackend: cihaz içi sahte sunucu (Firebase ayarları yoksa ve testlerde)
+ * - LiveBackend: Cloudflare (canlı)
+ * - DemoBackend: cihaz içi sahte sunucu (sunucu adresi yoksa ve testlerde)
  * Sunucu her zaman otoritedir: eşleşme, süreler, oylar ve snap hakları sunucuda tutulur.
  */
 

@@ -64,7 +64,7 @@ Kesin konumun hiçbir kullanıcıya gösterilmez; diğer kullanıcılar yalnızc
 • Hesabını sildiğinde profil ve konum verilerin hemen silinir
 
 5. Aktarım
-Veriler, hizmet sağlayıcımız Google Firebase'in sunucularında (Avrupa Birliği) saklanır. Buluşma önerisi için yalnızca buluşma noktasının koordinatı OpenStreetMap hizmetine gönderilir. Yurt dışına aktarım KVKK m.9 kapsamında gerçekleştirilir.
+Veriler, hizmet sağlayıcımız Cloudflare'in Avrupa Birliği'ndeki sunucularında saklanır (hesap kayıtları Batı Avrupa'da, radar ve sohbet verileri AB sınırları içinde). Buluşma önerisi için yalnızca buluşma noktasının koordinatı OpenStreetMap hizmetine gönderilir. Yurt dışına aktarım KVKK m.9 kapsamında gerçekleştirilir.
 
 6. Hakların (KVKK m.11)
 Verilerinin işlenip işlenmediğini öğrenme, bilgi talep etme, düzeltilmesini veya silinmesini isteme, itiraz etme ve zararın giderilmesini talep etme haklarına sahipsin. Başvuruların için: ${LEGAL_CONTACT}`;
