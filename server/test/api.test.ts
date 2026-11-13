@@ -10,6 +10,16 @@ const origin = { lat: 40.9903, lng: 29.029 };
 const off = (n: number, e: number) => ({ lat: origin.lat + n / 111320, lng: origin.lng + e / (111320 * Math.cos((origin.lat * Math.PI) / 180)) });
 const JPEG = '/9j/' + 'A'.repeat(400);
 
+/** DO RPC hatası: stub vaadini doğrudan beklemek eşlik eden işlem hattı vaadini sahipsiz bırakıyor */
+async function failure(call: () => Promise<unknown>): Promise<string> {
+  try {
+    await call();
+  } catch (e) {
+    return String((e as Error).message);
+  }
+  return 'başarılı oldu';
+}
+
 async function api(path: string, opts: { token?: string; method?: string; body?: unknown } = {}) {
   const res = await SELF.fetch(BASE + path, {
     method: opts.method ?? (opts.body !== undefined ? 'POST' : 'GET'),
@@ -173,8 +183,8 @@ describe('strike ve oda', () => {
     const id = await match(a, b);
     const room = roomOf(env, id);
     const t = await room.view(a.id);
-    await expect(room.postMessage(a.id, 'geç', 'text', t.roomEndsAt + 1)).rejects.toThrow(/409/);
-    await expect(room.vote(a.id, 'continue', t.roomStartsAt + 1000)).rejects.toThrow(/too-early/);
+    expect(await failure(() => room.postMessage(a.id, 'geç', 'text', t.roomEndsAt + 1))).toMatch(/409/);
+    expect(await failure(() => room.vote(a.id, 'continue', t.roomStartsAt + 1000))).toMatch(/too-early/);
     await room.vote(a.id, 'continue', t.roomEndsAt + 500);
     expect((await room.view(b.id)).votes.them).toBe('continue');
     await room.vote(b.id, 'continue', t.roomEndsAt + 900);
@@ -222,9 +232,9 @@ describe('BlitzSnap', () => {
     const room = roomOf(env, id);
     const t = await room.view(a.id);
     const inRoom = t.roomStartsAt + 2000;
-    await expect(room.sendSnap(a.id, 'iVBORw0' + 'A'.repeat(300), inRoom, inRoom)).rejects.toThrow(/not-jpeg/);
+    expect(await failure(() => room.sendSnap(a.id, 'iVBORw0' + 'A'.repeat(300), inRoom, inRoom))).toMatch(/not-jpeg/);
     await room.sendSnap(a.id, JPEG, inRoom - 500, inRoom);
-    await expect(room.sendSnap(a.id, JPEG, inRoom, inRoom)).rejects.toThrow(/no-snaps-left/);
+    expect(await failure(() => room.sendSnap(a.id, JPEG, inRoom, inRoom))).toMatch(/no-snaps-left/);
     const wsB = await openWs(`/v1/matches/${id}/ws`, b.token);
     const snapEv = await wsB.next('snap');
     expect(snapEv.snap).not.toBeNull();
