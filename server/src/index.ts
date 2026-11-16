@@ -4,6 +4,7 @@
  */
 import { candidateName, cafesFromOverpass, overpassQuery, REPORT_REASONS, roundDistance, isGender } from './core';
 import { midpoint } from './shared/meet';
+import type { GeoPoint } from './shared/radar';
 import { bearer, hashToken, newToken, newUserId } from './auth';
 import { ApiError, hubOf, roomOf, type Env, type PublicProfile } from './env';
 
@@ -103,28 +104,79 @@ async function cafes(user: UserRow, matchId: string, env: Env) {
   const locs = await hubOf(env).locations(user.id, view.partner.id);
   if (!locs) return json({ cafes: [] });
   const [a, b] = locs;
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 9000);
-  try {
-    const res = await fetch(env.OVERPASS_URL || 'https://overpass-api.de/api/interpreter', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'Fink/0.3 (cafe suggestions)' },
-      body: 'data=' + encodeURIComponent(overpassQuery(midpoint(a, b))),
-      signal: ctrl.signal,
-    });
-    if (!res.ok) throw new Error(`overpass ${res.status}`);
-    const data = (await res.json()) as { elements?: Parameters<typeof cafesFromOverpass>[2] };
-    const list = cafesFromOverpass(a, b, data.elements ?? []).map((c) => ({
-      venue: { id: c.venue.id, name: c.venue.name, kind: 'cafe', location: c.venue.location, isPublic: true, tags: c.venue.tags },
-      toA: roundDistance(c.toA),
-      toB: roundDistance(c.toB),
-    }));
-    return json({ cafes: list });
-  } catch {
-    throw new ApiError(503, 'cafes-unavailable', 'Kafe bilgisi şu an alınamadı');
-  } finally {
-    clearTimeout(timer);
+  const mid = midpoint(a, b);
+  const elements = await overpassElements(mid, env);
+  if (!elements) throw new ApiError(503, 'cafes-unavailable', 'Kafe bilgisi şu an alınamadı, biraz sonra tekrar dene');
+  const list = cafesFromOverpass(a, b, elements).map((c) => ({
+    venue: { id: c.venue.id, name: c.venue.name, kind: 'cafe', location: c.venue.location, isPublic: true, tags: c.venue.tags },
+    toA: roundDistance(c.toA),
+    toB: roundDistance(c.toB),
+  }));
+  return json({ cafes: list });
+}
+
+/** OpenStreetMap kafe verisi için sırayla denenen Overpass sunucuları */
+const OVERPASS_MIRRORS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.private.coffee/api/interpreter',
+  'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter',
+];
+
+type OverpassElements = Parameters<typeof cafesFromOverpass>[2];
+
+/**
+ * Orta noktanın çevresindeki kafeler. Sonuç ~150 m'lik ızgara hücresi başına 1 gün önbellekte tutulur
+ * (aynı bölgede tekrar sorulmaz). Bütün sunucular başarısız olursa null döner ve sebep hata kayıtlarına yazılır.
+ */
+async function overpassElements(mid: GeoPoint, env: Env): Promise<OverpassElements | null> {
+  const cell = `${(Math.round(mid.lat * 700) / 700).toFixed(4)},${(Math.round(mid.lng * 700) / 700).toFixed(4)}`;
+  const cacheKey = new Request(`https://cache.fink.internal/cafes/v1/${cell}`);
+  const cache = (globalThis as unknown as { caches?: { default?: Cache } }).caches?.default;
+  const hit = await cache?.match(cacheKey).catch(() => undefined);
+  if (hit) return ((await hit.json()) as { elements: OverpassElements }).elements;
+
+  const urls = env.OVERPASS_URL ? [env.OVERPASS_URL] : OVERPASS_MIRRORS;
+  const query = 'data=' + encodeURIComponent(overpassQuery(mid));
+  const failures: string[] = [];
+  const deadline = Date.now() + 20_000;
+  for (const url of urls) {
+    const left = deadline - Date.now();
+    if (left < 1500) break;
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), Math.min(8000, left));
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json', 'User-Agent': 'Fink/0.3 (+https://fink.dilakarakurt.com; cafe suggestions)' },
+        body: query,
+        signal: ctrl.signal,
+      });
+      if (!res.ok) {
+        failures.push(`${new URL(url).host}: HTTP ${res.status}`);
+        continue;
+      }
+      const data = (await res.json()) as { elements?: OverpassElements; remark?: string };
+      if (!Array.isArray(data.elements)) {
+        failures.push(`${new URL(url).host}: geçersiz cevap ${String(data.remark ?? '').slice(0, 80)}`);
+        continue;
+      }
+      await cache
+        ?.put(cacheKey, new Response(JSON.stringify({ elements: data.elements }), { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'max-age=86400' } }))
+        .catch(() => {});
+      return data.elements;
+    } catch (e) {
+      failures.push(`${new URL(url).host}: ${ctrl.signal.aborted ? 'zaman aşımı' : String((e as Error)?.message ?? e).slice(0, 80)}`);
+    } finally {
+      clearTimeout(timer);
+    }
   }
+  console.error('overpass failed', failures);
+  await env.DB.prepare('INSERT INTO crashes (at, fatal, message, stack, context, app_version, platform) VALUES (?, 0, ?, ?, ?, ?, ?)')
+    .bind(Date.now(), 'Kafe verisi alınamadı', failures.join('\n'), 'sunucu: overpass', API_VERSION, 'cloudflare')
+    .run()
+    .catch(() => {});
+  return null;
 }
 
 /** Uygulama hata raporu: kimlik gerektirmez, kişisel veri içermez, boyutu sınırlı. */

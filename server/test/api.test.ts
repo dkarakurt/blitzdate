@@ -1,7 +1,7 @@
 /**
  * Uçtan uca sunucu testleri: gerçek Workers çalışma ortamı (workerd), D1 ve Durable Objects ile.
  */
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { env, runDurableObjectAlarm, SELF } from 'cloudflare:test';
 import { hubOf, newRoomId, roomOf } from '../src/env';
 
@@ -297,6 +297,36 @@ describe('güvenlik', () => {
     expect(await env.DB.prepare('SELECT COUNT(*) AS c FROM users WHERE name = ?').bind(a.name).first('c')).toBe(0);
     const v = await roomOf(env, id).view(b.id);
     expect(v.closedReason).toBe('left');
+  });
+
+  test('kafeler: ilk harita sunucusu hata verirse yedeğe geçilir, sonuç önbelleğe alınır', async () => {
+    const a = await user('male');
+    const b = await user('female', off(80, 0));
+    const id = await match(a, b);
+    const room = roomOf(env, id);
+    const t = await room.view(a.id);
+    await room.vote(a.id, 'continue', t.roomEndsAt + 500);
+    await room.vote(b.id, 'continue', t.roomEndsAt + 900);
+    const realFetch = globalThis.fetch;
+    const calls: string[] = [];
+    const spy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+      const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+      if (!url.includes('/interpreter')) return realFetch(input, init);
+      calls.push(new URL(url).host);
+      if (url.includes('overpass-api.de')) return new Response('busy', { status: 504 });
+      return Response.json({ elements: [{ type: 'node', id: 1, lat: origin.lat + 0.0002, lon: origin.lng + 0.0004, tags: { amenity: 'cafe', name: 'Köşe Kahve' } }] });
+    });
+    try {
+      const r = await api(`/v1/matches/${id}/cafes`, { token: a.token });
+      expect(r.status).toBe(200);
+      expect(r.data.cafes.map((c: { venue: { name: string } }) => c.venue.name)).toEqual(['Köşe Kahve']);
+      expect(calls).toEqual(['overpass-api.de', 'overpass.private.coffee']);
+      const again = await api(`/v1/matches/${id}/cafes`, { token: b.token });
+      expect(again.data.cafes).toHaveLength(1);
+      expect(calls).toHaveLength(2);
+    } finally {
+      spy.mockRestore();
+    }
   });
 
   test('kafeler yalnızca sonsuz sohbette istenebilir', async () => {
