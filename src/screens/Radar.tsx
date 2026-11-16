@@ -5,7 +5,7 @@ import { formatDistance, genderPlural, oppositeGender, RADAR_RADIUS_M } from '..
 import type { RadarEntry } from '../backend/types';
 import { friendlyError } from '../backend/errors';
 import { Avatar, Btn, T, Wordmark } from '../ui/components';
-import { Bolt } from '../ui/icons';
+import { Bolt, Glyph } from '../ui/icons';
 import { colors, fonts } from '../ui/theme';
 import { ErrorLine } from './ChatParts';
 import type { ScreenProps } from './types';
@@ -86,7 +86,19 @@ export function Radar({ state, dispatch, services }: ScreenProps) {
   return (
     <View style={{ flex: 1, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16, gap: 14 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Wordmark />
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <Pressable
+            testID="radar-back"
+            accessibilityRole="button"
+            accessibilityLabel="Geri"
+            hitSlop={8}
+            onPress={() => dispatch({ type: 'LEAVE_RADAR' })}
+            style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.line }}
+          >
+            <Glyph name="back" size={18} color={colors.textSoft} strokeWidth={2.2} />
+          </Pressable>
+          <Wordmark />
+        </View>
         <Pressable
           testID="open-profile"
           accessibilityRole="button"

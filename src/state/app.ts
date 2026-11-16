@@ -56,6 +56,7 @@ export type Action =
   | { type: 'BOOTED'; profile: Profile | null }
   | { type: 'PROFILE'; profile: Profile }
   | { type: 'ENTER_RADAR' }
+  | { type: 'LEAVE_RADAR' }
   | { type: 'MATCH'; match: MatchView | null }
   | { type: 'MATCH_EXPIRED' }
   | { type: 'MESSAGES'; messages: ChatMessage[] }
@@ -94,6 +95,9 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...state, profile: action.profile };
     case 'ENTER_RADAR':
       return state.profile ? { ...state, enteredRadar: true } : state;
+    case 'LEAVE_RADAR':
+      // Eşleşme sürerken radardan çıkılmaz
+      return state.match ? state : { ...state, enteredRadar: false, overlay: null, location: 'unknown' };
 
     case 'MATCH': {
       const m = action.match;

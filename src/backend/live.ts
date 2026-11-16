@@ -246,6 +246,7 @@ export class LiveBackend implements Backend {
 
   private toProfile(p: ProfileJson): Profile {
     this.uid = p.uid;
+    this.trace(`profil: ${p.gender}, ${p.kind}`);
     return { uid: p.uid, identity: identityOf(p), gender: p.gender, rerolled: !!p.rerolled };
   }
 
@@ -320,7 +321,8 @@ export class LiveBackend implements Backend {
   }
 
   async nearby(): Promise<RadarEntry[]> {
-    const r = await this.req<{ entries: { id: string; name: string; kind: string; color: string; distanceM: number; struckMe: boolean }[] }>('GET', '/v1/nearby');
+    const r = await this.req<{ needLocation?: boolean; entries: { id: string; name: string; kind: string; color: string; distanceM: number; struckMe: boolean }[] }>('GET', '/v1/nearby');
+    this.trace(`radar: ${r.entries.length} kişi${r.needLocation ? ', sunucu konumumu bilmiyor' : ''}`);
     return r.entries.map((e) => ({ id: e.id, identity: identityOf(e), distanceM: e.distanceM, struckMe: e.struckMe }));
   }
 

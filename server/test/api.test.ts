@@ -319,3 +319,14 @@ test('hata raporu kaydedilir', async () => {
   const row = await env.DB.prepare('SELECT message, fatal, platform FROM crashes ORDER BY id DESC LIMIT 1').first();
   expect(row).toEqual({ message: 'TypeError: x is undefined', fatal: 1, platform: 'android' });
 });
+
+test('adım kayıtları yazılır', async () => {
+  const r = await SELF.fetch('https://fink.test/v1/trace', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ session: 'abc123', lines: ['ekran: radar', 'GET /v1/nearby → 200'], appVersion: '0.2.0', platform: 'android 34' }),
+  });
+  expect(r.status).toBe(200);
+  const rows = await env.DB.prepare('SELECT line FROM traces WHERE session = ? ORDER BY id').bind('abc123').all();
+  expect(rows.results.map((x) => x.line)).toEqual(['ekran: radar', 'GET /v1/nearby → 200']);
+});

@@ -139,6 +139,21 @@ async function crash(req: Request, env: Env): Promise<Response> {
   return json({ ok: true });
 }
 
+/** Teşhis için adım kayıtları (en fazla 50 satır / istek). */
+async function trace(req: Request, env: Env): Promise<Response> {
+  const b = await body<{ session?: unknown; lines?: unknown; appVersion?: unknown; platform?: unknown }>(req, 30_000);
+  const session = typeof b.session === 'string' ? b.session.slice(0, 32) : '';
+  const lines = Array.isArray(b.lines) ? b.lines.filter((l): l is string => typeof l === 'string').slice(0, 50) : [];
+  if (!session || !lines.length) throw new ApiError(400, 'bad-request', 'Eksik bilgi');
+  const ver = typeof b.appVersion === 'string' ? b.appVersion.slice(0, 40) : null;
+  const plat = typeof b.platform === 'string' ? b.platform.slice(0, 40) : null;
+  const now = Date.now();
+  await env.DB.batch(
+    lines.map((l, i) => env.DB.prepare('INSERT INTO traces (session, at, line, app_version, platform) VALUES (?, ?, ?, ?, ?)').bind(session, now + i, l.slice(0, 300), ver, plat)),
+  );
+  return json({ ok: true });
+}
+
 async function route(req: Request, env: Env): Promise<Response> {
   const url = new URL(req.url);
   const path = url.pathname.replace(/\/+$/, '');
@@ -147,6 +162,7 @@ async function route(req: Request, env: Env): Promise<Response> {
   if (path === '/v1/health') return json({ ok: true, version: API_VERSION, serverNow: Date.now() });
   if (m === 'POST' && path === '/v1/register') return register(req, env);
   if (m === 'POST' && path === '/v1/crash') return crash(req, env);
+  if (m === 'POST' && path === '/v1/trace') return trace(req, env);
 
   const user = await authUser(req, env);
   const hub = hubOf(env);
@@ -250,6 +266,7 @@ export default {
   async scheduled(_c: ScheduledController, env: Env): Promise<void> {
     const r = await hubOf(env).cleanup();
     await env.DB.prepare('DELETE FROM crashes WHERE at < ?').bind(Date.now() - 14 * 86_400_000).run();
+    await env.DB.prepare('DELETE FROM traces WHERE at < ?').bind(Date.now() - 3 * 86_400_000).run();
     console.log('cleanup', r);
   },
 } satisfies ExportedHandler<Env>;

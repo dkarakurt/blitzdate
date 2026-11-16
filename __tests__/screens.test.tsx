@@ -260,6 +260,16 @@ describe('Ekranlar (uçtan uca, demo sunucuya karşı)', () => {
     expect(screen.queryByTestId('radar-demo-0')).toBeNull();
   });
 
+  test('radar: geri düğmesi isim ekranına döner, oradan tekrar radara girilir', async () => {
+    await goToRadar();
+    await fireEvent.press(screen.getByTestId('radar-back'));
+    await advance(50);
+    expect(screen.getByTestId('screen-onboarding')).toBeTruthy();
+    await fireEvent.press(screen.getByTestId('enter-radar'));
+    await advance(50);
+    expect(screen.getByTestId('screen-radar')).toBeTruthy();
+  });
+
   test('profil: hesabı sil onayla → kayıt ekranına dönülür', async () => {
     await goToRadar();
     await fireEvent.press(screen.getByTestId('open-profile'));
@@ -269,5 +279,7 @@ describe('Ekranlar (uçtan uca, demo sunucuya karşı)', () => {
     await advance(50);
     expect(screen.getByTestId('screen-onboarding')).toBeTruthy();
     expect(screen.getByTestId('check-adult')).toBeTruthy();
+    expect(screen.queryByTestId('enter-radar')).toBeNull();
+    expect(screen.getByTestId('register').props.accessibilityState?.disabled ?? true).toBe(true);
   });
 });

@@ -34,6 +34,7 @@ export function usePresence(backend: Backend, active: boolean, dispatch: (a: Act
         breadcrumb('konum: izin soruluyor');
         const perm = await Location.requestForegroundPermissionsAsync().catch(() => null);
         if (!current()) return;
+        breadcrumb(`konum izni: ${perm?.status ?? 'hata'}${perm?.android?.accuracy ? ' / ' + perm.android.accuracy : ''}`);
         if (!perm || perm.status !== 'granted') {
           breadcrumb('konum: izin yok');
           dispatch({ type: 'LOCATION', status: 'denied' });
@@ -46,6 +47,7 @@ export function usePresence(backend: Backend, active: boolean, dispatch: (a: Act
         if (!current()) return;
         breadcrumb(first ? 'konum: ilk konum alındı' : 'konum: ilk konum alınamadı');
         if (first) {
+          breadcrumb(`konum doğruluğu: ~${Math.round(first.coords.accuracy ?? -1)} m`);
           last = { lat: first.coords.latitude, lng: first.coords.longitude };
           push(last);
         }

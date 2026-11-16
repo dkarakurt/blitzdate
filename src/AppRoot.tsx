@@ -81,6 +81,10 @@ export function AppRoot({ services, initial = initialState }: { services: Servic
         dispatch({ type: 'DISMISS_CLOSED' });
         return true;
       }
+      if (screen === 'radar') {
+        dispatch({ type: 'LEAVE_RADAR' });
+        return true;
+      }
       // Oda sürerken ve snap açıkken geri tuşu çıkarmaz
       return screen === 'strike' || screen === 'room' || screen === 'decision' || screen === 'snapView' || screen === 'chat';
     });

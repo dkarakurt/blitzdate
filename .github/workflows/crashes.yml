@@ -33,3 +33,8 @@ jobs:
           npx wrangler d1 execute fink-db --remote -c wrangler.generated.jsonc --json \
             --command "SELECT id, datetime(at/1000,'unixepoch','+3 hours') AS zaman, fatal, platform, app_version, context, message, stack FROM crashes ORDER BY id DESC LIMIT $n" \
             | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const rows=JSON.parse(s)[0].results;if(!rows.length)console.log("Kayıt yok.");for(const r of rows){console.log("━━━━ #"+r.id+"  "+r.zaman+"  "+(r.fatal?"ÖLÜMCÜL":"hata")+"  "+r.platform+"  v"+r.app_version+"  ["+(r.context||"")+"]");console.log(r.message);console.log(r.stack||"");}})'
+      - name: Son adım kayıtları (oturum başına)
+        run: |
+          npx wrangler d1 execute fink-db --remote -c wrangler.generated.jsonc --json \
+            --command "SELECT session, datetime(at/1000,'unixepoch','+3 hours') AS zaman, platform, app_version, line FROM traces WHERE at > (strftime('%s','now') - 6*3600)*1000 ORDER BY id DESC LIMIT 600" \
+            | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const rows=JSON.parse(s)[0].results.reverse();if(!rows.length){console.log("Kayıt yok.");return}let cur="";for(const r of rows){if(r.session!==cur){cur=r.session;console.log("\n━━━━ oturum "+r.session+"  "+r.platform+"  v"+r.app_version)}console.log("  "+r.line)}})'
