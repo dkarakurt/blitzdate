@@ -86,6 +86,12 @@ await until(() => vA?.state === 'chat' && vB?.state === 'chat', 'ikisi de sohbet
 check(true, 'ikisi de Devam → süre duvarı yıkıldı');
 await until(() => msgsB.find((m) => m.from === 'system' && m.text.includes('Devam')), 'sistem mesajı');
 
+const cafes = await A.meetSuggestions(mA.id).catch((e) => {
+  check(false, 'kafe önerisi alınamadı: ' + (e as Error).message);
+  return [];
+});
+check(true, `BlitzMeet: ${cafes.length} kafe önerildi${cafes.length ? ' (' + cafes.map((c) => c.venue.name).join(', ') + ')' : ''}`);
+
 await A.farewell(mA.id, 'Harika bir sohbetti, bol şans!');
 await until(() => vB?.state === 'closed', 'B kapanışı görsün');
 check(vB!.closedReason === 'farewell' && vB!.closedByMe === false, 'B kibar vedayı aldı, oda kapandı');
@@ -93,6 +99,7 @@ check(vA!.state === 'closed' && vA!.closedByMe === true, 'A tarafında da oda ka
 
 await A.deleteAccount();
 check((await new LiveBackend(base, storeA).restore()) === null, 'hesap silindi, oturum geçersiz');
+await B.deleteAccount();
 
 offA(); offB(); offMB(); offSA();
 console.log(failures ? `\n${failures} kontrol başarısız` : '\nTÜM KONTROLLER GEÇTİ');
