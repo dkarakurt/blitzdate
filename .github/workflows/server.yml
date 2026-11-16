@@ -90,6 +90,9 @@ jobs:
           probe "Durable Objects"              "/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/durable_objects/namespaces"
           probe "Alan adları (zone)"           "/zones?name=dilakarakurt.com"
           probe "Worker özel alan adları"      "/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/domains"
+          echo "Anahtarın gördüğü hesaplar ve alan adları:"
+          curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$api/accounts?per_page=50" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const r=JSON.parse(s).result||[];if(!r.length)console.log("  (hiç hesap yok)");for(const a of r)console.log("  hesap: "+a.name+(a.id===process.env.CLOUDFLARE_ACCOUNT_ID?"  ← GitHub ACCOUNT_ID ile aynı":"  (ACCOUNT_ID farklı)"))}catch{}})'
+          curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$api/zones?per_page=50" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const r=JSON.parse(s).result||[];if(!r.length)console.log("  (hiç alan adı yok)");for(const z of r)console.log("  alan adı: "+z.name+"  (hesap: "+(z.account&&z.account.name)+")")}catch{}})'
           echo "Mevcut Worker'lar:"
           curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$api/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{for(const w of JSON.parse(s).result||[])console.log("  - "+w.id)}catch{}})'
       - name: Veritabanı (D1) yoksa oluştur, kimliğini ayara yaz
