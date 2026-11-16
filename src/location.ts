@@ -10,9 +10,13 @@ import { breadcrumb, reportError } from './crash';
  * Konum yalnızca uygulama ön plandayken alınır ve sunucuya yazılır.
  * Uygulama arka plana geçince konum kaydı silinir (radarda görünmezsin).
  *
- * Not: Android'de izin penceresi açılınca uygulama kısa süre "arka plana" geçer.
+ * Not: Android'de izin istemek (izin zaten verilmiş olsa bile) görünmez bir pencere açar ve
+ * uygulama bir anlığına "arka plana" geçer. Bu yüzden:
+ *  - izin yalnızca BİR KEZ istenir; sonraki başlatmalarda sadece kontrol edilir,
+ *  - kısa arka plan geçişleri yok sayılır; konum ancak 5 sn'den uzun arka planda kapatılır.
  * Her başlatma bir "tur" numarası alır; durdurulan turun geç gelen sonuçları yok sayılır.
  */
+const BACKGROUND_GRACE_MS = 5000;
 export function usePresence(backend: Backend, active: boolean, dispatch: (a: Action) => void) {
   useEffect(() => {
     if (backend.mode !== 'live' || !active) return;
@@ -22,6 +26,8 @@ export function usePresence(backend: Backend, active: boolean, dispatch: (a: Act
     let round = 0;
     let running = false;
     let disposed = false;
+    let asked = false;
+    let pendingStop: ReturnType<typeof setTimeout> | null = null;
 
     const push = (p: GeoPoint | null) => backend.updatePresence(p).catch(() => {});
 
@@ -31,8 +37,12 @@ export function usePresence(backend: Backend, active: boolean, dispatch: (a: Act
       const my = ++round;
       const current = () => my === round && !disposed;
       try {
-        breadcrumb('konum: izin soruluyor');
-        const perm = await Location.requestForegroundPermissionsAsync().catch(() => null);
+        let perm = await Location.getForegroundPermissionsAsync().catch(() => null);
+        if (perm && perm.status !== 'granted' && perm.canAskAgain && !asked) {
+          asked = true;
+          breadcrumb('konum: izin soruluyor');
+          perm = await Location.requestForegroundPermissionsAsync().catch(() => null);
+        }
         if (!current()) return;
         breadcrumb(`konum izni: ${perm?.status ?? 'hata'}${perm?.android?.accuracy ? ' / ' + perm.android.accuracy : ''}`);
         if (!perm || perm.status !== 'granted') {
@@ -86,14 +96,27 @@ export function usePresence(backend: Backend, active: boolean, dispatch: (a: Act
       running = false;
     };
 
+    const cancelPendingStop = () => {
+      if (pendingStop) clearTimeout(pendingStop);
+      pendingStop = null;
+    };
+
     start();
     const sub = RNAppState.addEventListener('change', (s) => {
-      breadcrumb('uygulama: ' + s);
-      if (s === 'active') start();
-      else if (s === 'background') stop();
+      if (s === 'active') {
+        cancelPendingStop();
+        start();
+      } else if (s === 'background' && !pendingStop) {
+        pendingStop = setTimeout(() => {
+          pendingStop = null;
+          breadcrumb('konum: arka planda, kapatılıyor');
+          stop();
+        }, BACKGROUND_GRACE_MS);
+      }
     });
     return () => {
       disposed = true;
+      cancelPendingStop();
       sub.remove();
       stop();
     };
