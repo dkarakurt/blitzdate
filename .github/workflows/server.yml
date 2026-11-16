@@ -110,7 +110,14 @@ jobs:
         run: npx wrangler d1 migrations apply fink-db --remote -c wrangler.generated.jsonc
       - name: Yayınla
         if: steps.check.outputs.ok == 'true'
-        run: npx wrangler deploy -c wrangler.generated.jsonc
+        run: |
+          # İlk yüklemede Cloudflare yeni Worker'ı birkaç saniye geç tanıyabiliyor; bir kez daha dene.
+          for i in 1 2 3; do
+            npx wrangler deploy -c wrangler.generated.jsonc && exit 0
+            echo "::warning::Yayınlama denemesi $i başarısız, 15 sn sonra tekrar"
+            sleep 15
+          done
+          exit 1
       - name: Sağlık kontrolü
         id: live
         if: steps.check.outputs.ok == 'true'
