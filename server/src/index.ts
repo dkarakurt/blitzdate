@@ -3,7 +3,7 @@
  * Kalıcı kayıtlar D1'de (SQLite); canlı durum Durable Object'lerde (RadarHub, MatchRoom).
  */
 import { candidateName, cafesFromOverpass, overpassQuery, REPORT_REASONS, roundDistance, isGender } from './core';
-import { midpoint } from './shared/meet';
+import { CAFE_MAX_WALK_M, midpoint } from './shared/meet';
 import type { GeoPoint } from './shared/radar';
 import { bearer, hashToken, newToken, newUserId } from './auth';
 import { ApiError, hubOf, roomOf, type Env, type PublicProfile } from './env';
@@ -105,7 +105,7 @@ async function cafes(user: UserRow, matchId: string, env: Env) {
   if (!locs) return json({ cafes: [] });
   const [a, b] = locs;
   const mid = midpoint(a, b);
-  const elements = await overpassElements(mid, env);
+  const elements = (await localCafes(mid, env)) ?? (await overpassElements(mid, env));
   if (!elements) throw new ApiError(503, 'cafes-unavailable', 'Kafe bilgisi şu an alınamadı, biraz sonra tekrar dene');
   const list = cafesFromOverpass(a, b, elements).map((c) => ({
     venue: { id: c.venue.id, name: c.venue.name, kind: 'cafe', location: c.venue.location, isPublic: true, tags: c.venue.tags },
@@ -113,6 +113,36 @@ async function cafes(user: UserRow, matchId: string, env: Env) {
     toB: roundDistance(c.toB),
   }));
   return json({ cafes: list });
+}
+
+/**
+ * Kendi veritabanımızdaki kafeler (OpenStreetMap Türkiye verisinden, ayda bir güncellenir).
+ * Bölgede hiç kayıt yoksa null döner; o zaman canlı Overpass'a sorulur.
+ */
+async function localCafes(mid: GeoPoint, env: Env): Promise<OverpassElements | null> {
+  const dLat = CAFE_MAX_WALK_M / 111_320;
+  const dLng = CAFE_MAX_WALK_M / (111_320 * Math.cos((mid.lat * Math.PI) / 180));
+  const rows = await env.DB.prepare('SELECT id, name, lat, lng, tags FROM cafes WHERE lat BETWEEN ? AND ? AND lng BETWEEN ? AND ? LIMIT 200')
+    .bind(mid.lat - dLat, mid.lat + dLat, mid.lng - dLng, mid.lng + dLng)
+    .all<{ id: string; name: string; lat: number; lng: number; tags: string | null }>()
+    .catch(() => null);
+  if (!rows || !rows.results.length) {
+    // Tablo dolu ama bu bölgede kafe yoksa dışarıya sormaya gerek yok
+    const any = await env.DB.prepare('SELECT 1 FROM cafes WHERE lat BETWEEN ? AND ? AND lng BETWEEN ? AND ? LIMIT 1')
+      .bind(mid.lat - 0.5, mid.lat + 0.5, mid.lng - 0.5, mid.lng + 0.5)
+      .first()
+      .catch(() => null);
+    return any ? [] : null;
+  }
+  return rows.results.map((r) => {
+    let tags: Record<string, string> = {};
+    try {
+      tags = r.tags ? (JSON.parse(r.tags) as Record<string, string>) : {};
+    } catch {
+      /* bozuk etiket */
+    }
+    return { id: r.id, lat: r.lat, lon: r.lng, tags: { ...tags, name: r.name } };
+  });
 }
 
 /** OpenStreetMap kafe verisi için sırayla denenen Overpass sunucuları */

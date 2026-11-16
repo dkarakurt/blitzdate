@@ -329,6 +329,30 @@ describe('güvenlik', () => {
     }
   });
 
+  test('kafeler: kendi veritabanımızda varsa dış servise hiç sorulmaz', async () => {
+    const a = await user('male');
+    const b = await user('female', off(80, 0));
+    const id = await match(a, b);
+    const room = roomOf(env, id);
+    const t = await room.view(a.id);
+    await room.vote(a.id, 'continue', t.roomEndsAt + 500);
+    await room.vote(b.id, 'continue', t.roomEndsAt + 900);
+    await env.DB.batch([
+      env.DB.prepare('INSERT INTO cafes (id, name, lat, lng, tags) VALUES (?, ?, ?, ?, ?)').bind('n1', 'Yerel Kahve', origin.lat + 0.0003, origin.lng + 0.0003, JSON.stringify({ outdoor_seating: 'yes' })),
+      env.DB.prepare('INSERT INTO cafes (id, name, lat, lng, tags) VALUES (?, ?, ?, ?, ?)').bind('n2', 'Uzak Kahve', origin.lat + 0.05, origin.lng, null),
+    ]);
+    const spy = vi.spyOn(globalThis, 'fetch');
+    try {
+      const r = await api(`/v1/matches/${id}/cafes`, { token: a.token });
+      expect(r.status).toBe(200);
+      expect(r.data.cafes.map((c: { venue: { name: string; tags: string[] } }) => [c.venue.name, c.venue.tags])).toEqual([['Yerel Kahve', ['Açık hava']]]);
+      expect(spy.mock.calls.filter(([u]) => String(u instanceof Request ? u.url : u).includes('interpreter'))).toHaveLength(0);
+    } finally {
+      spy.mockRestore();
+      await env.DB.prepare('DELETE FROM cafes').run();
+    }
+  });
+
   test('kafeler yalnızca sonsuz sohbette istenebilir', async () => {
     const a = await user('male');
     const b = await user('female', off(80, 0));

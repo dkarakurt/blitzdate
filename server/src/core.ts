@@ -147,7 +147,7 @@ export function cleanText(text: unknown): string | null {
 export function cafesFromOverpass(
   a: GeoPoint,
   b: GeoPoint,
-  elements: { id: number; lat?: number; lon?: number; center?: { lat: number; lon: number }; tags?: Record<string, string> }[],
+  elements: { id: number | string; lat?: number; lon?: number; center?: { lat: number; lon: number }; tags?: Record<string, string> }[],
 ): CafeSuggestion[] {
   const venues: Venue[] = [];
   for (const e of elements) {
