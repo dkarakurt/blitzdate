@@ -64,6 +64,12 @@ const identityOf = (p: { name: string; kind: string; color: string }): AnimalIde
 });
 
 const RECONNECT_MS = [500, 1000, 2000, 5000, 10000];
+
+/** Canlı bağlantı içindeki hatalar uygulamayı kapatmasın; buraya bildirilir (uygulama bir raporlayıcı bağlar). */
+let liveErrorSink: (e: unknown, context: string) => void = () => {};
+export function setLiveErrorSink(fn: (e: unknown, context: string) => void) {
+  liveErrorSink = fn;
+}
 const PING_MS = 25_000;
 
 /** Kopunca kendini yeniden bağlayan WebSocket */
@@ -77,6 +83,8 @@ class LiveSocket {
   constructor(
     private url: () => Promise<string | null>,
     private onMessage: (data: any) => void,
+    private trace: (s: string) => void = () => {},
+    private label = 'ws',
   ) {
     this.open();
   }
@@ -85,9 +93,11 @@ class LiveSocket {
     if (this.stopped) return;
     const url = await this.url();
     if (!url || this.stopped) return;
+    this.trace(`${this.label}: bağlanıyor`);
     const ws = new WebSocket(url);
     this.ws = ws;
     ws.onopen = () => {
+      this.trace(`${this.label}: açık`);
       this.attempt = 0;
       this.ping = setInterval(() => {
         try {
@@ -99,13 +109,22 @@ class LiveSocket {
     };
     ws.onmessage = (e) => {
       if (typeof e.data !== 'string' || e.data === 'pong') return;
+      let msg: any;
       try {
-        this.onMessage(JSON.parse(e.data));
+        msg = JSON.parse(e.data);
       } catch {
-        /* bozuk ileti */
+        return;
+      }
+      this.trace(`${this.label}: ${msg?.type}`);
+      try {
+        this.onMessage(msg);
+      } catch (err) {
+        this.trace(`${this.label}: işleme hatası ${(err as Error)?.message}`);
+        liveErrorSink(err, `${this.label}: ${msg?.type}`);
       }
     };
     ws.onclose = (e) => {
+      this.trace(`${this.label}: kapandı ${e.code}`);
       if (this.ping) clearInterval(this.ping);
       this.ping = null;
       if (this.stopped) return;
@@ -143,7 +162,7 @@ class RoomStream {
   readonly snapListeners = new Set<(s: SnapJson) => void>();
   private socket: LiveSocket;
 
-  constructor(url: () => Promise<string | null>, onServerNow: (t: number) => void) {
+  constructor(url: () => Promise<string | null>, onServerNow: (t: number) => void, trace: (s: string) => void) {
     this.socket = new LiveSocket(url, (msg) => {
       if (typeof msg.serverNow === 'number') onServerNow(msg.serverNow);
       if (msg.type === 'state') {
@@ -159,7 +178,7 @@ class RoomStream {
         this.snap = msg.snap;
         this.snapListeners.forEach((cb) => cb(this.snap));
       }
-    });
+    }, trace, 'oda');
   }
 
   close() {
@@ -181,6 +200,8 @@ export class LiveBackend implements Backend {
   constructor(
     baseUrl: string,
     private store: TokenStore,
+    /** Teşhis için adım kaydı (isteğe bağlı) */
+    private trace: (s: string) => void = () => {},
   ) {
     this.base = baseUrl.replace(/\/+$/, '');
     this.wsBase = this.base.replace(/^http/, 'ws');
@@ -210,6 +231,7 @@ export class LiveBackend implements Backend {
         signal: ctrl.signal,
       });
       const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+      this.trace(`${method} ${path.replace(/[0-9a-f]{64}/, ':id')} → ${res.status}`);
       this.syncClock(data.serverNow);
       if (!res.ok) throw new ApiClientError(res.status, String(data.error ?? 'error'), String(data.message ?? ''));
       return data as T;
@@ -251,7 +273,7 @@ export class LiveBackend implements Backend {
   private room(matchId: string): RoomStream {
     let r = this.rooms.get(matchId);
     if (!r) {
-      r = new RoomStream(this.wsUrl(`/v1/matches/${matchId}/ws`), (t) => this.syncClock(t));
+      r = new RoomStream(this.wsUrl(`/v1/matches/${matchId}/ws`), (t) => this.syncClock(t), this.trace);
       this.rooms.set(matchId, r);
     }
     return r;
@@ -331,10 +353,15 @@ export class LiveBackend implements Backend {
       detach = () => room.viewListeners.delete(onView);
     };
 
-    const inbox = new LiveSocket(this.wsUrl('/v1/inbox'), (msg) => {
-      this.syncClock(msg.serverNow);
-      if (msg.type === 'hello' || msg.type === 'match') attach(msg.matchId ?? null);
-    });
+    const inbox = new LiveSocket(
+      this.wsUrl('/v1/inbox'),
+      (msg) => {
+        this.syncClock(msg.serverNow);
+        if (msg.type === 'hello' || msg.type === 'match') attach(msg.matchId ?? null);
+      },
+      this.trace,
+      'gelen kutusu',
+    );
     return () => {
       inbox.close();
       detach?.();

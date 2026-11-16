@@ -127,6 +127,18 @@ async function cafes(user: UserRow, matchId: string, env: Env) {
   }
 }
 
+/** Uygulama hata raporu: kimlik gerektirmez, kişisel veri içermez, boyutu sınırlı. */
+async function crash(req: Request, env: Env): Promise<Response> {
+  const b = await body<{ message?: unknown; stack?: unknown; context?: unknown; fatal?: unknown; appVersion?: unknown; platform?: unknown }>(req, 20_000);
+  const str = (v: unknown, n: number) => (typeof v === 'string' ? v.slice(0, n) : null);
+  const message = str(b.message, 1000);
+  if (!message) throw new ApiError(400, 'bad-request', 'Eksik bilgi');
+  await env.DB.prepare('INSERT INTO crashes (at, fatal, message, stack, context, app_version, platform) VALUES (?, ?, ?, ?, ?, ?, ?)')
+    .bind(Date.now(), b.fatal ? 1 : 0, message, str(b.stack, 6000), str(b.context, 500), str(b.appVersion, 40), str(b.platform, 40))
+    .run();
+  return json({ ok: true });
+}
+
 async function route(req: Request, env: Env): Promise<Response> {
   const url = new URL(req.url);
   const path = url.pathname.replace(/\/+$/, '');
@@ -134,6 +146,7 @@ async function route(req: Request, env: Env): Promise<Response> {
 
   if (path === '/v1/health') return json({ ok: true, version: API_VERSION, serverNow: Date.now() });
   if (m === 'POST' && path === '/v1/register') return register(req, env);
+  if (m === 'POST' && path === '/v1/crash') return crash(req, env);
 
   const user = await authUser(req, env);
   const hub = hubOf(env);
@@ -236,6 +249,7 @@ export default {
 
   async scheduled(_c: ScheduledController, env: Env): Promise<void> {
     const r = await hubOf(env).cleanup();
+    await env.DB.prepare('DELETE FROM crashes WHERE at < ?').bind(Date.now() - 14 * 86_400_000).run();
     console.log('cleanup', r);
   },
 } satisfies ExportedHandler<Env>;

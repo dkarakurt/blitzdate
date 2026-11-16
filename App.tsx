@@ -10,6 +10,10 @@ import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold';
 import { AppRoot } from './src/AppRoot';
 import { createBackend } from './src/backend';
 import { colors } from './src/ui/theme';
+import { ErrorBoundary } from './src/ui/ErrorBoundary';
+import { installCrashReporter } from './src/crash';
+
+installCrashReporter();
 
 export default function App() {
   const [loaded] = useFonts({
@@ -21,13 +25,15 @@ export default function App() {
     Inter_600SemiBold,
     Inter_700Bold,
   });
-  // Firebase ayarları derlemedeyse canlı sunucu, yoksa demo
+  // Sunucu adresi derlemedeyse canlı sunucu, yoksa demo
   const services = useMemo(() => ({ backend: createBackend(), rng: Math.random }), []);
 
   return (
     <SafeAreaProvider>
       <KeyboardProvider>
-        {loaded ? <AppRoot services={services} /> : <View style={{ flex: 1, backgroundColor: colors.night }} />}
+        <ErrorBoundary>
+          {loaded ? <AppRoot services={services} /> : <View style={{ flex: 1, backgroundColor: colors.night }} />}
+        </ErrorBoundary>
       </KeyboardProvider>
     </SafeAreaProvider>
   );

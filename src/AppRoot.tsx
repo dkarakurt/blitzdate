@@ -18,6 +18,7 @@ import { Closed, Farewell } from './screens/Farewell';
 import { SnapCapture } from './screens/SnapCapture';
 import { SnapView } from './screens/SnapView';
 import { Legal, ProfileSheet, Report } from './screens/Safety';
+import { breadcrumb } from './crash';
 
 export function AppRoot({ services, initial = initialState }: { services: Services; initial?: AppState }) {
   const { backend } = services;
@@ -26,6 +27,10 @@ export function AppRoot({ services, initial = initialState }: { services: Servic
   const screen = screenOf(state, now);
   const signedIn = !!state.profile && state.enteredRadar;
   const matchId = state.match?.id ?? null;
+
+  useEffect(() => {
+    breadcrumb('ekran: ' + screen);
+  }, [screen]);
 
   // Oturumu geri yükle
   useEffect(() => {

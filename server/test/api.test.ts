@@ -308,3 +308,14 @@ describe('güvenlik', () => {
     expect(r.data.cafes).toEqual([]);
   });
 });
+
+test('hata raporu kaydedilir', async () => {
+  const r = await SELF.fetch('https://fink.test/v1/crash', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: 'TypeError: x is undefined', stack: 'at Radar', fatal: true, appVersion: '0.2.0', platform: 'android' }),
+  });
+  expect(r.status).toBe(200);
+  const row = await env.DB.prepare('SELECT message, fatal, platform FROM crashes ORDER BY id DESC LIMIT 1').first();
+  expect(row).toEqual({ message: 'TypeError: x is undefined', fatal: 1, platform: 'android' });
+});
