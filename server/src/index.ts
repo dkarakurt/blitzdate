@@ -139,12 +139,12 @@ async function overpassElements(mid: GeoPoint, env: Env): Promise<OverpassElemen
   const urls = env.OVERPASS_URL ? [env.OVERPASS_URL] : OVERPASS_MIRRORS;
   const query = 'data=' + encodeURIComponent(overpassQuery(mid));
   const failures: string[] = [];
-  const deadline = Date.now() + 20_000;
+  const deadline = Date.now() + 13_000; // uygulama 20 sn bekler; kayıt yazmaya da zaman kalsın
   for (const url of urls) {
     const left = deadline - Date.now();
     if (left < 1500) break;
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), Math.min(8000, left));
+    const timer = setTimeout(() => ctrl.abort(), Math.min(6000, left));
     try {
       const res = await fetch(url, {
         method: 'POST',
