@@ -238,7 +238,7 @@ h1, h2, h3 { font-weight: 600; }
 .strike__names { margin: 0; font-family: var(--sc-font-display); font-weight: 600; font-size: var(--sc-t-xl); letter-spacing: -0.01em; }
 .strike__count { margin: var(--sc-2) 0 0; font-size: var(--sc-t-lg); font-weight: 600; font-variant-numeric: tabular-nums; }
 
-/* ------------------------------------------------------- 4 · BlitzRoom */
+/* ------------------------------------------------------- 4 · FinkRoom */
 .scene--room { grid-template-columns: auto minmax(0, 30rem); }
 .app--room { height: min(790px, calc(100svh - var(--bar-h) - 2.5rem)); padding-bottom: var(--sc-3); }
 .room__top { display: flex; align-items: center; gap: var(--sc-3); padding-bottom: var(--sc-3); border-bottom: 1px solid var(--line); }

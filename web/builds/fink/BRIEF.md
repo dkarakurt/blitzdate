@@ -8,9 +8,9 @@ Kullanıcının kendi cevapları aynen alıntılandı; geri kalanı yazılmış 
 | # | Konu | Cevap |
 |---|---|---|
 | 1 | Hava | Kullanıcı: "Sen karar ver". **Yazılmış karar:** gece ve oyunbaz. Koyu gece laciverti (#14122B) zemin, tek vurgu marka sarısı (#FFFF00). Uygulamanın kendi dili: hayvan ikonları, Fredoka başlıklar. Referanslar: gece metrosundaki yabancı bakışları, bir masa oyununun zar atılan anı, bir radyo frekansının bulunması. |
-| 2 | Yolculuk | Ürün akışının kendisi: radar → Strike → 90 sn BlitzRoom → Karar → BlitzSnap → BlitzMeet / İkinci Şans → indir. |
+| 2 | Yolculuk | Ürün akışının kendisi: radar → Strike → 90 sn FinkRoom → Karar → FinkSnap → FinkMeet / İkinci Şans → indir. |
 | 3 | Enerji eğrisi | **Yazılmış karar:** sakin açılış, radarda artan merak, Strike'ta kısa sarsıntı, odada en yüksek gerilim, karar anında kırılma, sonra sıcak ve sakin iniş. |
-| 4 | Doruk | Kullanıcı: "hepsi olmalı fakat uygulamanın adı fink. unutma. logosunu da kullan." **Yazılmış karar:** radar, Strike, 90 saniye ve BlitzSnap aynı gerçek karşılaşmanın parçaları olarak tek bir akışta; doruk bu karşılaşmanın en uzun ve en yoğun anı olan 90 saniyelik oda. fink. adı ve tavşan logosu açılışta, üst çubukta ve kapanışta. |
+| 4 | Doruk | Kullanıcı: "hepsi olmalı fakat uygulamanın adı fink. unutma. logosunu da kullan." **Yazılmış karar:** radar, Strike, 90 saniye ve FinkSnap aynı gerçek karşılaşmanın parçaları olarak tek bir akışta; doruk bu karşılaşmanın en uzun ve en yoğun anı olan 90 saniyelik oda. fink. adı ve tavşan logosu açılışta, üst çubukta ve kapanışta. |
 | 5 | Kimsenin yapmadığı şey | **Yazılmış karar:** ziyaretçi kapıda kendi anonim kimliğini alır (gerçek 100 sıfat × 8 hayvan listesinden), bir kez değiştirebilir (uygulamadaki kuralın aynısı) ve sayfa boyunca radardaki "Sen", sohbetteki balonlar, Strike'ın öbür ucu hep o kimliktir. |
 | 6 | Estetik aralık | **Yazılmış karar:** oyunbaz (tüketici uygulaması, topluluk), gece zemininde. Premium-minimal değil. |
 | 7 | Tek dünya mı, sahneler mi | **Yazılmış karar:** sahneler. Ürünün kendi ekranları sahnedir. |
@@ -40,8 +40,8 @@ Neden diğer yedisi kaybetti:
 2. Beklenti: radar dönüyor, yakındakiler tek tek beliriyor, biri sana çarpıyor.
 3. Sarsıntı: Strike. İkiniz de çarptınız. 3, 2, 1.
 4. Gerilim (DORUK): 90 saniye kaydırmanın altında akıyor, mesajlar doluyor, sıfır. Karar. İkiniz de Devam. Saat kırılıyor, sonsuz.
-5. Yakınlık: BlitzSnap. 5 saniyelik canlı kare, gözünün önünde siliniyor.
-6. Sıcaklık: BlitzMeet. İkinize de yürüme mesafesinde üç kafe. Ya istemezsen: İkinci Şans.
+5. Yakınlık: FinkSnap. 5 saniyelik canlı kare, gözünün önünde siliniyor.
+6. Sıcaklık: FinkMeet. İkinize de yürüme mesafesinde üç kafe. Ya istemezsen: İkinci Şans.
 7. Hazırlık: uygulamanın ilk adımı. 18+ onayı, APK'yı indir.
 
 ## Duygu eğrisi

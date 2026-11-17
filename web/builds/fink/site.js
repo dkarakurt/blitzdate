@@ -184,7 +184,7 @@
   }
 
   /* ================================================================
-     4 · BlitzRoom: 90 saniye kaydırmanın altında (DORUK)
+     4 · FinkRoom: 90 saniye kaydırmanın altında (DORUK)
      ================================================================ */
   var roomAct = $('#oda');
   var room = $('[data-room]');
@@ -234,7 +234,7 @@
     var oc = outcomeNow(p);
     var msgs = script().filter(function (m) { return m.e <= elapsed; }).concat(userMsgs);
     msgs.sort(function (a, b) { return a.e - b.e; });
-    if (elapsed >= L.BLITZ_SECONDS) msgs.push({ e: 90, from: 'sys', text: 'Süre doldu.' });
+    if (elapsed >= L.ROOM_SECONDS) msgs.push({ e: 90, from: 'sys', text: 'Süre doldu.' });
     if (oc.result === 'continue' && p > 0.9) msgs.push({ e: 91, from: 'sys', text: 'İkiniz de Devam dediniz. Süre duvarı yıkıldı.' });
     if (oc.result === 'closed' && userVote === 'leave') msgs.push({ e: 91, from: 'sys', text: 'Oda kapandı. Kimse kimseye bir şey borçlu değil.' });
     var view = msgs.slice(-7);
@@ -250,8 +250,8 @@
   var lastRoomKey = '';
   function tickRoom(p) {
     var t = clamp((p - P0) / (P1 - P0), 0, 1);
-    var left = Math.ceil(L.BLITZ_SECONDS * (1 - t) - 1e-9);
-    elapsed = L.BLITZ_SECONDS - left;
+    var left = Math.ceil(L.ROOM_SECONDS * (1 - t) - 1e-9);
+    elapsed = L.ROOM_SECONDS - left;
     var oc = outcomeNow(p);
     var broken = oc.result === 'continue' && p > 0.9;
     var brk = broken ? clamp((p - 0.9) / 0.08, 0, 1) : 0;
@@ -266,7 +266,7 @@
     clock.style.setProperty('--off', (100 * (1 - L.ringProgress(left))).toFixed(2));
     clockN.textContent = broken ? '∞' : String(left);
     clock.setAttribute('aria-label', broken ? 'Süre yok, sohbet süresiz' : 'Kalan süre ' + left + ' saniye');
-    roomSub.textContent = broken ? 'Süresiz sohbet · yine isimsiz' : oc.result === 'closed' ? 'Oda kapandı' : timeUp ? 'Karar zamanı' : 'BlitzRoom';
+    roomSub.textContent = broken ? 'Süresiz sohbet · yine isimsiz' : oc.result === 'closed' ? 'Oda kapandı' : timeUp ? 'Karar zamanı' : 'FinkRoom';
 
     var deciding = timeUp && !broken && oc.result !== 'closed';
     verdict.hidden = !deciding;
@@ -318,7 +318,7 @@
   });
 
   /* ================================================================
-     5 · BlitzSnap: tek kare, 5 saniye
+     5 · FinkSnap: tek kare, 5 saniye
      ================================================================ */
   var snapFrame = $('[data-snap]');
   var canvas = $('[data-snap-canvas]');
@@ -396,7 +396,7 @@
   }
 
   /* ================================================================
-     6 · BlitzMeet: ikinize de 700 m içinde (uygulamadaki sıralama kuralı)
+     6 · FinkMeet: ikinize de 700 m içinde (uygulamadaki sıralama kuralı)
      ================================================================ */
   var VENUES = [
     { id: 'v1', name: 'Köşe Kahve', dx: 190, dy: -140, tags: ['Açık hava', 'Wi-Fi'] },
