@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>fink. · Yakınındaki biriyle, isimsiz, 90 saniye</title>
+<meta name="description" content="fink. bir çöpçatan uygulaması: radarında 1 km içindeki biriyle eşleş, isimsiz yaz, 90 saniye sonra devam edip etmeyeceğinize birlikte karar verin.">
+<meta name="theme-color" content="#0F0D22">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%2314122B'/%3E%3Cg fill='%23FFFF00' stroke='%23FFFF00' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M214 250 L196 70' stroke-width='80' fill='none'/%3E%3Cpath d='M296 250 L314 140 Q326 84 376 110 L424 152' stroke-width='80' fill='none'/%3E%3Ccircle cx='256' cy='336' r='140' stroke='none'/%3E%3C/g%3E%3Cg stroke='%2314122B' stroke-width='18' fill='none' stroke-linecap='round'%3E%3Cpath d='M182 342 Q206 368 230 342'/%3E%3Cpath d='M282 342 Q306 368 330 342'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="scrollcraft.css">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+
+<span data-sc-progress></span>
+<div class="sc-grain" aria-hidden="true"></div>
+
+<!-- Ürünün tanımlarını tek yerde tutan semboller: logo ve 8 hayvan (uygulamadaki SVG'ler) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="logo" viewBox="0 0 512 512">
+      <g fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M214 250 L196 70" stroke-width="80" fill="none"/>
+        <path d="M296 250 L314 140 Q326 84 376 110 L424 152" stroke-width="80" fill="none"/>
+        <circle cx="256" cy="336" r="140" stroke="none"/>
+      </g>
+      <g stroke="var(--logo-face, #14122B)" stroke-width="18" fill="none" stroke-linecap="round">
+        <path d="M182 342 Q206 368 230 342"/><path d="M282 342 Q306 368 330 342"/>
+      </g>
+    </symbol>
+    <symbol id="a-lynx" viewBox="0 0 24 24"><g class="ai"><path d="M5 10L6 3l4 4h4l4-4 1 7a7 7 0 0 1-14 0z"/><path d="M6 3V1M18 3V1"/><path d="M11 14.5l1 1 1-1"/></g><circle cx="9.5" cy="11.5" r=".9" fill="currentColor"/><circle cx="14.5" cy="11.5" r=".9" fill="currentColor"/></symbol>
+    <symbol id="a-fox" viewBox="0 0 24 24"><g class="ai"><path d="M4 4l5 5h6l5-5-1 9-7 7-7-7z"/><path d="M11 16h2"/></g><circle cx="9.5" cy="12" r=".9" fill="currentColor"/><circle cx="14.5" cy="12" r=".9" fill="currentColor"/></symbol>
+    <symbol id="a-owl" viewBox="0 0 24 24"><g class="ai"><path d="M5 9l2-5 3 3h4l3-3 2 5v6a7 7 0 0 1-14 0z"/><circle cx="9.5" cy="11.5" r="2.2"/><circle cx="14.5" cy="11.5" r="2.2"/><path d="M11.2 14.5l.8 1.5.8-1.5z"/></g></symbol>
+    <symbol id="a-rabbit" viewBox="0 0 24 24"><g class="ai"><rect x="8" y="1.5" width="3" height="9" rx="1.5"/><rect x="13" y="1.5" width="3" height="9" rx="1.5"/><circle cx="12" cy="15.5" r="6"/></g><circle cx="10" cy="14.5" r=".8" fill="currentColor"/><circle cx="14" cy="14.5" r=".8" fill="currentColor"/></symbol>
+    <symbol id="a-bear" viewBox="0 0 24 24"><g class="ai"><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="6.5" r="2.5"/><circle cx="12" cy="13" r="7"/><ellipse cx="12" cy="15.5" rx="3" ry="2"/></g><circle cx="9.5" cy="11.5" r=".8" fill="currentColor"/><circle cx="14.5" cy="11.5" r=".8" fill="currentColor"/></symbol>
+    <symbol id="a-penguin" viewBox="0 0 24 24"><g class="ai"><path d="M12 2.5a6 6 0 0 0-6 6v7a6 6 0 0 0 12 0v-7a6 6 0 0 0-6-6z"/><path d="M9 14a3 4 0 0 0 6 0"/><path d="M11 9l1 1.5 1-1.5z"/></g><circle cx="10" cy="7.5" r=".8" fill="currentColor"/><circle cx="14" cy="7.5" r=".8" fill="currentColor"/></symbol>
+    <symbol id="a-cat" viewBox="0 0 24 24"><g class="ai"><path d="M5 11V4l4 3h6l4-3v7a7 7 0 0 1-14 0z"/><path d="M11 14.5l1 1 1-1M3 14h4M17 14h4"/></g><circle cx="9.5" cy="12" r=".9" fill="currentColor"/><circle cx="14.5" cy="12" r=".9" fill="currentColor"/></symbol>
+    <symbol id="a-frog" viewBox="0 0 24 24"><g class="ai"><circle cx="8" cy="7" r="2.8"/><circle cx="16" cy="7" r="2.8"/><path d="M5.5 8.5C3.5 10 3 12 3 14c0 3.5 4 6 9 6s9-2.5 9-6c0-2-.5-4-2.5-5.5"/><path d="M8.5 15c2 1.5 5 1.5 7 0"/></g><circle cx="8" cy="7" r=".9" fill="currentColor"/><circle cx="16" cy="7" r=".9" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+
+<!-- Uygulamanın kendi üst çubuğu: logo, akıştaki yerin, senin kimliğin -->
+<header class="bar">
+  <a class="bar__brand" href="#top" aria-label="fink. başa dön">
+    <svg class="bar__mark" aria-hidden="true"><use href="#logo"/></svg>
+    <span class="bar__word">fink.</span>
+  </a>
+  <nav class="bar__tabs" aria-label="Akış">
+    <a href="#radar" data-tab="radar">Radar</a>
+    <a href="#strike" data-tab="strike">Strike</a>
+    <a href="#oda" data-tab="oda">BlitzRoom</a>
+    <a href="#snap" data-tab="snap">BlitzSnap</a>
+    <a href="#meet" data-tab="meet">BlitzMeet</a>
+  </nav>
+  <a class="me-chip" href="#top" aria-label="Senin isimsiz kimliğin">
+    <span class="ava ava--s" data-me-ava><svg><use href="#a-owl"/></svg></span>
+    <span data-me-name>Gizemli Baykuş</span>
+  </a>
+</header>
+
+<main id="top">
+
+  <!-- 1 · MERAK: açılış ekranı. Kimlik kapıda verilir. -->
+  <section class="hero" data-sc-act="flow" aria-labelledby="hero-title">
+    <div class="hero__far" aria-hidden="true">
+      <div class="hero__rings"><i></i><i></i><i></i><i></i></div>
+      <div class="hero__sweep"></div>
+    </div>
+    <div class="hero__near" aria-hidden="true">
+      <span class="blip-f" style="--x:42%;--y:15%;--d:.9;--c:#FF5C8A"><svg><use href="#a-fox"/></svg></span>
+      <span class="blip-f" style="--x:78%;--y:16%;--d:.5;--c:#7CF2A5"><svg><use href="#a-penguin"/></svg></span>
+      <span class="blip-f" style="--x:86%;--y:66%;--d:1.2;--c:#B69CFF"><svg><use href="#a-bear"/></svg></span>
+      <span class="blip-f" style="--x:58%;--y:86%;--d:.7;--c:#5CE1FF"><svg><use href="#a-cat"/></svg></span>
+    </div>
+    <div class="hero__mark" aria-hidden="true"><svg><use href="#logo"/></svg></div>
+
+    <div class="hero__copy sc-stack" data-sc-in data-sc-stagger="70">
+      <h1 id="hero-title" class="hero__word">fink<span class="dot">.</span></h1>
+      <p class="hero__lede">Yakınındaki biriyle, isimsiz, 90 saniyelik bir sohbet. Sonra ikiniz karar verirsiniz.</p>
+      <div class="idcard" role="group" aria-labelledby="idcard-label">
+        <span class="ava ava--l" data-me-ava><svg><use href="#a-owl"/></svg></span>
+        <div class="idcard__txt">
+          <span id="idcard-label" class="idcard__k">Bu akşam sen</span>
+          <strong class="idcard__name" data-me-name aria-live="polite">Gizemli Baykuş</strong>
+        </div>
+        <button class="btn btn--ghost idcard__reroll" type="button" data-reroll>Bir kez değiştir</button>
+      </div>
+      <a class="btn btn--primary hero__cta" href="#indir">APK'yı indir</a>
+    </div>
+  </section>
+
+  <!-- 2 · BEKLENTİ: radar tutulur, durum ilerler -->
+  <section id="radar" data-sc-act="pin" data-sc-span="2.4" data-sc-drift="#0F0D22" data-scene="radar">
+    <div data-sc-stage class="scene scene--radar">
+      <div class="help">
+        <div class="help__step" data-sc-cue="0 0.30 0">
+          <h2 class="help__h">Sadece karşı cins. Sadece şu an uygulaması açık olanlar. Sadece 1 km.</h2>
+        </div>
+        <div class="help__step" data-sc-cue="0.26 0.58">
+          <h2 class="help__h">Yön gizli, mesafe yuvarlanır.</h2>
+          <p class="help__p">Kimse nerede olduğunu bilmez. Yalnızca ne kadar yakın olduğunu görür.</p>
+        </div>
+        <div class="help__step" data-sc-cue="0.54 1 0.12 0.03">
+          <h2 class="help__h"><span data-them-name>Utangaç Tilki</span> sana çarptı.</h2>
+          <p class="help__p">Sen de çarparsan Strike. İkiniz de istemedikçe hiçbir şey olmaz.</p>
+        </div>
+      </div>
+
+      <div class="app app--radar" aria-label="Uygulamanın radar ekranı (örnek senaryo)" role="region">
+        <div class="app__top">
+          <span class="app__word"><svg aria-hidden="true"><use href="#logo"/></svg>fink.</span>
+          <span class="me-mini"><span class="ava ava--xs" data-me-ava><svg><use href="#a-owl"/></svg></span><span data-me-name>Gizemli Baykuş</span></span>
+        </div>
+        <div class="radar" data-radar>
+          <div class="radar__ring" style="--r:1"></div>
+          <div class="radar__ring" style="--r:.666"></div>
+          <div class="radar__ring" style="--r:.333"></div>
+          <span class="radar__km">1 km</span>
+          <div class="radar__sweep"></div>
+          <div class="radar__me"><span class="ava ava--m" data-me-ava><svg><use href="#a-owl"/></svg></span><span class="radar__me-l">Sen</span></div>
+          <!-- noktalar sayfa betiğiyle örnek senaryodan hesaplanır -->
+        </div>
+        <p class="app__status" data-radar-status>Radar taranıyor</p>
+        <ul class="near" data-near></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · SARSINTI: Strike. İris sayfada bir kez. -->
+  <section id="strike" data-sc-act="pin" data-sc-span="1.7" data-sc-drift="#0F0D22" data-scene="strike">
+    <div data-sc-stage class="scene scene--strike">
+      <div class="strike__pair" aria-hidden="true">
+        <span class="ava ava--xl strike__a" data-me-ava><svg><use href="#a-owl"/></svg></span>
+        <span class="ava ava--xl strike__b" data-them-ava><svg><use href="#a-fox"/></svg></span>
+      </div>
+      <div class="strike__field" data-sc-reveal="iris" data-sc-reveal-at="0.16 0.46">
+        <div class="strike__inner">
+          <p class="strike__word">Strike!</p>
+          <p class="strike__names"><span data-me-name>Gizemli Baykuş</span> <span aria-hidden="true">×</span> <span data-them-name>Utangaç Tilki</span></p>
+          <p class="strike__count" data-strike-count aria-live="off">Oda açılıyor</p>
+        </div>
+      </div>
+      <h2 class="sr-only">İkiniz de çarptınız: Strike. Oda birkaç saniye sonra açılır.</h2>
+    </div>
+  </section>
+
+  <!-- 4 · GERİLİM (DORUK): 90 saniye kaydırmanın altında akar -->
+  <section id="oda" data-sc-act="pin" data-sc-span="4.4" data-sc-drift="#14122B" data-scene="room">
+    <div data-sc-stage class="scene scene--room">
+      <div class="app app--room" data-room>
+        <div class="room__top">
+          <span class="ava ava--s" data-them-ava><svg><use href="#a-fox"/></svg></span>
+          <div class="room__who"><strong data-them-name>Utangaç Tilki</strong><span data-room-sub>BlitzRoom</span></div>
+          <div class="clock" data-clock role="timer" aria-label="Kalan süre">
+            <svg viewBox="0 0 44 44" aria-hidden="true"><circle class="clock__bg" cx="22" cy="22" r="19"/><circle class="clock__fg" cx="22" cy="22" r="19" pathLength="100"/></svg>
+            <span class="clock__n" data-clock-n>90</span>
+            <span class="clock__shards" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+          </div>
+        </div>
+        <ol class="chat" data-chat aria-live="polite" aria-label="Sohbet"></ol>
+        <div class="ice" data-ice>
+          <p class="ice__k">Buzkıran</p>
+          <p class="ice__q" data-ice-q>Pizza kenarı yenir mi, yenmez mi?</p>
+          <div class="ice__row">
+            <button class="btn btn--quiet" type="button" data-ice-next>Başka soru</button>
+            <button class="btn btn--primary btn--s" type="button" data-ice-send>Sohbete gönder</button>
+          </div>
+        </div>
+        <form class="compose" data-compose>
+          <label class="sr-only" for="msg">Mesaj</label>
+          <input id="msg" name="msg" type="text" maxlength="280" autocomplete="off" placeholder="Bir şey yaz">
+          <button class="btn btn--primary btn--s" type="submit">Gönder</button>
+        </form>
+        <div class="verdict" data-verdict hidden>
+          <p class="verdict__h" data-verdict-h>Süre doldu. Devam mı?</p>
+          <p class="verdict__them" data-verdict-them><span data-them-name>Utangaç Tilki</span> karar veriyor</p>
+          <div class="verdict__row">
+            <button class="btn btn--ghost" type="button" data-vote="leave">Bitir</button>
+            <button class="btn btn--primary" type="button" data-vote="continue">Devam</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="help help--trail">
+        <div class="help__step" data-sc-cue="0 0.28 0">
+          <p class="help__k">BlitzRoom</p>
+          <h2 class="help__h">90 saniye. Sadece yazı.</h2>
+          <p class="help__p">Ses yok, fotoğraf yok, profil yok. İki isimsiz hayvan ve bir sayaç.</p>
+        </div>
+        <div class="help__step" data-sc-cue="0.24 0.52">
+          <h2 class="help__h">Ne yazacağını bilemezsen buzkıran hazır.</h2>
+          <p class="help__p">Sohbete gönder: soru doğrudan mesajın olur. Dene, bu oda gerçekten çalışıyor.</p>
+        </div>
+        <div class="help__step" data-sc-cue="0.48 0.76">
+          <h2 class="help__h">Son 15 saniyede saat sararır.</h2>
+        </div>
+        <div class="help__step" data-sc-cue="0.74 1 0.1 0.03">
+          <h2 class="help__h">İkiniz de Devam derseniz süre duvarı yıkılır.</h2>
+          <p class="help__p">Sohbet süresiz olur ve yine isimsiz kalır. Biri Bitir derse oda kalıcı olarak kapanır.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · YAKINLIK: tek kare, beş saniye -->
+  <section id="snap" class="snap sc-section" data-sc-act="flow" data-scene="snap">
+    <div class="sc-wrap snap__grid">
+      <figure class="snapcard" data-sc-reveal="up" data-sc-reveal-at="0.05 0.32">
+        <div class="snapcard__frame" data-snap>
+          <canvas class="snapcard__img" width="480" height="600" data-snap-canvas aria-hidden="true"></canvas>
+          <div class="snapcard__seal" data-snap-seal>
+            <span class="tag">Canlı çekim</span>
+            <p class="snapcard__from"><span data-them-name>Utangaç Tilki</span> bir BlitzSnap gönderdi</p>
+            <button class="btn btn--primary" type="button" data-snap-open>Dokun, 5 saniye bak</button>
+          </div>
+          <div class="snapcard__ring" data-snap-ring hidden aria-hidden="true"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19" pathLength="100"/></svg><span data-snap-n>5</span></div>
+          <div class="snapcard__gone" data-snap-gone hidden>
+            <p class="snapcard__gone-h">Silindi.</p>
+            <p>Gerisini yüz yüze gör.</p>
+            <a class="snapcard__link" href="#meet">Ortada buluşun</a>
+          </div>
+        </div>
+        <figcaption class="snapcard__cap">Örnek kare. Uygulamada yalnızca o an çekilen fotoğraf gönderilebilir.</figcaption>
+      </figure>
+      <div class="snap__copy sc-stack" data-sc-in data-sc-stagger="60">
+        <h2 class="sec-h">Bir kare. Beş saniye.</h2>
+        <p class="sc-body">Eşleşme başına bir hak. Sadece uygulamanın kamerasıyla, o an çekilen fotoğraf: galeri yok, filtre yok. Karşı taraf dokunduğunda beş saniye görünür, sonra sunucudan da silinir.</p>
+        <p class="sc-body soft">Android'de ekran görüntüsü engellenir. Göndermek de bakmak da isteğe bağlı.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 · SICAKLIK: ortada buluşun, ya da kibarca bitirin -->
+  <section id="meet" class="meet sc-section" data-sc-act="flow" data-scene="meet">
+    <div class="sc-wrap meet__grid">
+      <div class="meet__copy sc-stack" data-sc-in data-sc-stagger="60">
+        <h2 class="sec-h sec-h--s">İkinize de yürüme mesafesinde.</h2>
+        <p class="sc-body">İkiniz de dışarıdaysanız ve yakınsanız, her birinize en fazla 700 metre uzaklıktaki en fazla üç halka açık kafe önerilir. Orta noktaya yakın ve iki tarafa da adil olanlar önce gelir. Tam konum paylaşılmaz, sadece buluşma noktası.</p>
+        <ol class="cafes" data-cafes></ol>
+        <p class="soft small">Örnek senaryo ve örnek kafeler; sıralama uygulamadaki kuralla hesaplandı.</p>
+      </div>
+      <figure class="map" aria-label="Örnek harita: sen, karşı taraf ve ikinize de yakın kafeler">
+        <div class="map__grid" data-sc-parallax="-0.6" aria-hidden="true"></div>
+        <svg class="map__svg" data-map viewBox="0 0 600 600" role="img" aria-hidden="true"></svg>
+      </figure>
+    </div>
+
+    <div class="sc-wrap second" data-sc-in data-sc-stagger="60">
+      <div class="second__head sc-stack">
+        <p class="help__k">İkinci Şans</p>
+        <h2 class="sec-h sec-h--s">Ya istemezsen? Sessizce kaybolmak yok.</h2>
+        <p class="sc-body">"Kibarca bitir" de: hazır bir veda gider, oda kapanır. Kimse kimseye açıklama borçlu değil.</p>
+      </div>
+      <fieldset class="farewell" data-farewell>
+        <legend class="sr-only">Veda mesajı seç</legend>
+      </fieldset>
+    </div>
+  </section>
+
+  <!-- 7 · HAZIRLIK: uygulamanın ilk adımı. Son öğe; ipuçları tutar. -->
+  <section id="indir" data-sc-act="pin" data-sc-span="1.15" data-sc-drift="#14122B" data-scene="close">
+    <div data-sc-stage class="scene scene--close">
+      <form class="onb" data-onb data-sc-cue="0 1 0 0" novalidate>
+        <svg class="onb__mark" aria-hidden="true"><use href="#logo"/></svg>
+        <h2 class="onb__h">Hazırsın, <span data-me-name>Gizemli Baykuş</span>.</h2>
+        <p class="onb__p">Android için test sürümü. Uygulamada ismini sunucu verir: belki yine bu, belki bambaşka.</p>
+        <label class="check">
+          <input type="checkbox" data-adult>
+          <span class="check__box" aria-hidden="true"></span>
+          <span>18 yaşından büyüğüm.</span>
+        </label>
+        <a class="btn btn--primary btn--l onb__cta" data-download aria-disabled="true"
+           href="https://github.com/dkarakurt/blitzdate/releases/latest/download/fink.apk">APK'yı indir</a>
+        <p class="onb__fine" data-onb-hint>İndirmek için 18 yaş onayı gerekli.</p>
+        <ul class="onb__facts">
+          <li>Yaklaşık 45 MB. iPhone sürümü henüz yok.</li>
+          <li>Kurulumda telefon "bilinmeyen kaynak" izni isteyebilir.</li>
+          <li>Konumun yalnızca uygulama açıkken kullanılır.</li>
+        </ul>
+      </form>
+      <footer class="foot">
+        <span class="foot__brand"><svg aria-hidden="true"><use href="#logo"/></svg>fink.</span>
+        <span>Bu sayfadaki sohbet, radar ve kafeler örnek senaryodur; kurallar uygulamanın kendisinden.</span>
+      </footer>
+    </div>
+  </section>
+
+</main>
+
+<script src="assets/fink-logic.js"></script>
+<script src="scrollcraft.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

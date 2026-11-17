@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths-ignore:
       - 'server/**'
+      - 'web/**'
+      - '.scrollcraft.json'
       - 'docs/**'
       - '*.md'
       - '.github/workflows/server.yml'
