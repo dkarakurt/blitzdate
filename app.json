@@ -65,7 +65,8 @@
           "isIosBackgroundLocationEnabled": false
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      "./plugins/withReleaseSigning"
     ]
   }
 }
