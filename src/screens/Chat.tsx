@@ -63,7 +63,7 @@ export function Chat({ state, dispatch, services }: ScreenProps) {
           <View testID="meet-card" style={{ backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.spark, borderRadius: 20, padding: 14, gap: 10 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <Glyph name="pin" size={18} color={colors.spark} />
-              <Text style={{ fontFamily: fonts.bodyBold, fontSize: 12, letterSpacing: 1.5, color: colors.spark }}>BLITZMEET</Text>
+              <Text style={{ fontFamily: fonts.bodyBold, fontSize: 12, letterSpacing: 1.5, color: colors.spark }}>FINKMEET</Text>
             </View>
             <Text style={{ fontFamily: fonts.body, fontSize: 15, color: colors.text, lineHeight: 20 }}>
               Aranızda yaklaşık {formatDistance(m.distanceM)} var. Yakınınızdaki bir kafede buluşalım mı?

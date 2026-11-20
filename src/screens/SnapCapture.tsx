@@ -131,7 +131,7 @@ export function SnapCapture({ state, dispatch, services }: ScreenProps) {
           </Pressable>
           <View style={{ height: 36, paddingHorizontal: 14, borderRadius: 18, backgroundColor: colors.night, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colors.spark }} />
-            <Text style={{ fontFamily: fonts.bodyBold, fontSize: 12, letterSpacing: 1.2, color: colors.text }}>BLITZSNAP · CANLI</Text>
+            <Text style={{ fontFamily: fonts.bodyBold, fontSize: 12, letterSpacing: 1.2, color: colors.text }}>FINKSNAP · CANLI</Text>
           </View>
           <Pressable
             accessibilityRole="button"

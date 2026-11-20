@@ -9,7 +9,7 @@ import { CameraIcon, Glyph } from '../ui/icons';
 import { colors, fonts } from '../ui/theme';
 import type { ScreenProps } from './types';
 
-const PREVENT_KEY = 'blitzsnap';
+const PREVENT_KEY = 'finksnap';
 
 /**
  * Gelen FinkSnap: açıldığı an sunucudan silinir, burada 5 saniye gösterilir.
