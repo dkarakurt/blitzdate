@@ -168,7 +168,7 @@ export class DemoBackend implements Backend {
       this.later(DEMO_TIMING.snapAfterChatMs, () => {
         if (this.match?.state === 'chat' && !this.incoming) {
           this.incoming = { id: `snap-${Date.now()}`, capturedAt: Date.now() - 3000 };
-          this.push('system', 'system', `${this.match.partner.identity.name} sana bir BlitzSnap gönderdi.`);
+          this.push('system', 'system', `${this.match.partner.identity.name} sana bir FinkSnap gönderdi.`);
           this.emitSnap();
         }
       });
@@ -222,7 +222,7 @@ export class DemoBackend implements Backend {
     if (!jpegBase64) throw new Error('Fotoğraf yok');
     this.match = { ...m, snapsSentByMe: m.snapsSentByMe + 1 };
     this.emitMatch();
-    this.push('system', 'system', 'BlitzSnap kozunu oynadın. Açıldığı an 5 saniye görünecek.');
+    this.push('system', 'system', 'FinkSnap kozunu oynadın. Açıldığı an 5 saniye görünecek.');
   }
 
   onIncomingSnap(_matchId: string, cb: (s: IncomingSnap | null) => void): Unsubscribe {

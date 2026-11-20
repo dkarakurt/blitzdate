@@ -42,7 +42,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "BlitzSnap için yalnızca o an fotoğraf çekmek üzere kameranı kullanırız. Galerine erişmeyiz.",
+          "cameraPermission": "FinkSnap için yalnızca o an fotoğraf çekmek üzere kameranı kullanırız. Galerine erişmeyiz.",
           "microphonePermission": false,
           "recordAudioAndroid": false
         }

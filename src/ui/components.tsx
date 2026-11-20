@@ -231,7 +231,7 @@ export function Composer({
       <Pressable
         testID="snap-button"
         accessibilityRole="button"
-        accessibilityLabel={snapsLeft > 0 ? 'BlitzSnap: şu anki fotoğrafını gönder, 1 hakkın var' : 'BlitzSnap hakkın kullanıldı'}
+        accessibilityLabel={snapsLeft > 0 ? 'FinkSnap: şu anki fotoğrafını gönder, 1 hakkın var' : 'FinkSnap hakkın kullanıldı'}
         onPress={onSnap}
         disabled={snapsLeft === 0 || disabled}
         style={{

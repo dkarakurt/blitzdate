@@ -1,7 +1,7 @@
 import { distanceMeters, type GeoPoint } from './radar';
 
 /**
- * BlitzMeet: iki kişi de dışarıda ve birbirine yakınsa, ikisine de yürüme mesafesindeki
+ * FinkMeet: iki kişi de dışarıda ve birbirine yakınsa, ikisine de yürüme mesafesindeki
  * kafeler önerilir. (İndirim / masa kodu bir sonraki sürümde.)
  */
 
@@ -15,7 +15,7 @@ export interface MeetCandidate {
   outdoors: boolean;
 }
 
-export function canBlitzMeet(a: MeetCandidate, b: MeetCandidate): boolean {
+export function canFinkMeet(a: MeetCandidate, b: MeetCandidate): boolean {
   return a.outdoors && b.outdoors && distanceMeters(a.location, b.location) <= MEET_MAX_DISTANCE_M;
 }
 

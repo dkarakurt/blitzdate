@@ -1,4 +1,4 @@
-/** BlitzRoom: 90 saniyelik yazılı sohbet ve ardından gelen karar anı. */
+/** FinkRoom: 90 saniyelik yazılı sohbet ve ardından gelen karar anı. */
 
 export const BLITZ_SECONDS = 90;
 export const DECISION_SECONDS = 10;

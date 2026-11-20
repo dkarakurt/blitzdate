@@ -145,7 +145,7 @@ export function Onboarding({ state, dispatch, services }: ScreenProps) {
         {profile.identity.name}
       </Text>
       <Text style={[T.body, { textAlign: 'center', maxWidth: 300 }]}>
-        {"Bu isim yalnızca sana ait. Radarda, Strike'ta ve BlitzRoom'da seni herkes böyle tanıyacak."}
+        {"Bu isim yalnızca sana ait. Radarda, Strike'ta ve FinkRoom'da seni herkes böyle tanıyacak."}
       </Text>
       <View style={{ flex: 1 }} />
       <ErrorLine text={error} />

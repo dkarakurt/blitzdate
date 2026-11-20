@@ -1,5 +1,5 @@
 /**
- * BlitzSnap: sohbet sırasında oynanabilen tek "koz".
+ * FinkSnap: sohbet sırasında oynanabilen tek "koz".
  * - Yalnızca uygulama içi kamerayla, o an çekilmiş fotoğraf.
  * - Alıcı açtığı an 5 saniye görür, sonra fotoğraf silinir.
  * - Her kişinin bir eşleşmede tek hakkı vardır.

@@ -12,7 +12,7 @@ import type { ScreenProps } from './types';
 const PREVENT_KEY = 'blitzsnap';
 
 /**
- * Gelen BlitzSnap: açıldığı an sunucudan silinir, burada 5 saniye gösterilir.
+ * Gelen FinkSnap: açıldığı an sunucudan silinir, burada 5 saniye gösterilir.
  * Android: ekran görüntüsü/kaydı engellenir (FLAG_SECURE).
  * iOS: ekran kaydı gizlenir; ekran görüntüsü engellenemez, yalnızca algılanır.
  */
@@ -81,7 +81,7 @@ export function SnapView({ state, dispatch, services, now }: ScreenProps) {
   return (
     <View style={{ flex: 1, backgroundColor: colors.line }}>
       {opened.dataUri ? (
-        <Image source={{ uri: opened.dataUri }} style={{ flex: 1 }} resizeMode="cover" accessibilityLabel="BlitzSnap fotoğrafı" />
+        <Image source={{ uri: opened.dataUri }} style={{ flex: 1 }} resizeMode="cover" accessibilityLabel="FinkSnap fotoğrafı" />
       ) : (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 8 }}>
           <Text style={{ fontFamily: fonts.bodySemi, fontSize: 15, color: colors.textSoft, textAlign: 'center' }}>

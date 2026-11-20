@@ -20,7 +20,7 @@ import {
   tickSnap,
   validateSnap,
 } from '../src/logic/snap';
-import { CAFE_MAX_WALK_M, canBlitzMeet, midpoint, nearbyCafes, walkingMinutes } from '../src/logic/meet';
+import { CAFE_MAX_WALK_M, canFinkMeet, midpoint, nearbyCafes, walkingMinutes } from '../src/logic/meet';
 import { farewellMessage, FAREWELL_TEMPLATES } from '../src/logic/farewell';
 import { DEMO_ORIGIN, demoRegistry, demoUsers, demoVenues, offset } from '../src/demo/world';
 
@@ -103,7 +103,7 @@ describe('Radar', () => {
   });
 });
 
-describe('BlitzRoom ve karar', () => {
+describe('FinkRoom ve karar', () => {
   test('süre 90 saniye ve kalan süre doğru hesaplanır', () => {
     expect(BLITZ_SECONDS).toBe(90);
     expect(secondsLeft(10_000, 0)).toBe(10);
@@ -135,7 +135,7 @@ describe('BlitzRoom ve karar', () => {
   });
 });
 
-describe('BlitzSnap', () => {
+describe('FinkSnap', () => {
   const now = 1_000_000;
   const live = { uri: 'file://x.jpg', source: 'camera' as const, capturedAt: now - 2000 };
 
@@ -167,14 +167,14 @@ describe('BlitzSnap', () => {
   });
 });
 
-describe('BlitzMeet', () => {
+describe('FinkMeet', () => {
   const a = { location: DEMO_ORIGIN, outdoors: true };
   const b = { location: offset(DEMO_ORIGIN, 60, 50), outdoors: true };
 
   test('ikisi de dışarıda ve yakınsa önerilir', () => {
-    expect(canBlitzMeet(a, b)).toBe(true);
-    expect(canBlitzMeet(a, { ...b, outdoors: false })).toBe(false);
-    expect(canBlitzMeet(a, { location: offset(DEMO_ORIGIN, 3000, 0), outdoors: true })).toBe(false);
+    expect(canFinkMeet(a, b)).toBe(true);
+    expect(canFinkMeet(a, { ...b, outdoors: false })).toBe(false);
+    expect(canFinkMeet(a, { location: offset(DEMO_ORIGIN, 3000, 0), outdoors: true })).toBe(false);
   });
 
   test('yalnızca ikisine de yakın, halka açık kafeler önerilir; en adil olan önce', () => {

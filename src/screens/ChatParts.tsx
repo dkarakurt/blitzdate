@@ -40,14 +40,14 @@ export function PartnerHeader({
   );
 }
 
-/** Gelen, henüz açılmamış BlitzSnap için dokunulabilir şerit. */
+/** Gelen, henüz açılmamış FinkSnap için dokunulabilir şerit. */
 export function IncomingSnapBanner({ state, onOpen }: { state: AppState; onOpen: () => void }) {
   if (!state.incomingSnap || !state.match) return null;
   return (
     <Pressable
       testID="open-snap"
       accessibilityRole="button"
-      accessibilityLabel="Gelen BlitzSnap'i aç, 5 saniye görünür"
+      accessibilityLabel="Gelen FinkSnap'i aç, 5 saniye görünür"
       onPress={onOpen}
       style={{ backgroundColor: colors.spark, borderRadius: 20, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12 }}
     >

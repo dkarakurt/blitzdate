@@ -19,13 +19,13 @@ Fink yalnızca 18 yaşını doldurmuş kişiler içindir. 18 yaşından küçük
 Fink'te adın, yaşın ya da fotoğrafın yoktur; sana rastgele bir hayvan ismi verilir. Sohbette kendi isteğinle paylaştığın bilgilerden sen sorumlusun.
 
 4. Davranış kuralları
-Şunlar yasaktır: taciz, tehdit, nefret söylemi; istenmeyen cinsel içerik; başkasının kişisel bilgilerini paylaşmak; dolandırıcılık, reklam ve spam; BlitzSnap ile çıplaklık veya müstehcen görüntü göndermek; başka birinin yerine geçmek; uygulamanın güvenlik önlemlerini aşmaya çalışmak.
+Şunlar yasaktır: taciz, tehdit, nefret söylemi; istenmeyen cinsel içerik; başkasının kişisel bilgilerini paylaşmak; dolandırıcılık, reklam ve spam; FinkSnap ile çıplaklık veya müstehcen görüntü göndermek; başka birinin yerine geçmek; uygulamanın güvenlik önlemlerini aşmaya çalışmak.
 
-5. BlitzSnap
-BlitzSnap yalnızca o an kamerayla çekilen bir fotoğraftır, alıcı tarafından 5 saniye görüntülenir ve ardından silinir. Ekran görüntüsü almaya ya da başka bir cihazla kaydetmeye çalışmak yasaktır.
+5. FinkSnap
+FinkSnap yalnızca o an kamerayla çekilen bir fotoğraftır, alıcı tarafından 5 saniye görüntülenir ve ardından silinir. Ekran görüntüsü almaya ya da başka bir cihazla kaydetmeye çalışmak yasaktır.
 
 6. Buluşma güvenliği
-BlitzMeet yalnızca halka açık kafeleri önerir. İlk buluşmayı her zaman kalabalık, halka açık bir yerde yap; bir yakınına nerede olduğunu haber ver; kendini güvende hissetmezsen ayrıl. Fink, kullanıcıların kimliğini doğrulamaz ve buluşmalarda yaşanan olaylardan sorumlu değildir.
+FinkMeet yalnızca halka açık kafeleri önerir. İlk buluşmayı her zaman kalabalık, halka açık bir yerde yap; bir yakınına nerede olduğunu haber ver; kendini güvende hissetmezsen ayrıl. Fink, kullanıcıların kimliğini doğrulamaz ve buluşmalarda yaşanan olaylardan sorumlu değildir.
 
 7. Şikayet ve engelleme
 Rahatsız olduğun herkesi engelleyebilir ve şikayet edebilirsin. Şikayetler incelenir; kuralları ihlal eden hesaplar uyarı yapılmaksızın kapatılabilir.
@@ -49,7 +49,7 @@ Gizlilik politikasının tam metni: ${PRIVACY_URL}
 • Anonim kullanıcı kimliği ve sana atanan hayvan ismi
 • Cinsiyet ve 18 yaşından büyük olduğuna dair beyanın
 • Konum: yalnızca uygulama açıkken; yakındaki kişileri bulmak ve buluşma noktası önermek için
-• Sohbet mesajların ve BlitzSnap fotoğrafların
+• Sohbet mesajların ve FinkSnap fotoğrafların
 • Engelleme ve şikayet kayıtları
 • Teknik veriler: hata raporları (14 gün) ve uygulama adım kayıtları (3 gün); konum ve mesaj içeriği bu kayıtlara girmez
 
@@ -61,7 +61,7 @@ Kesin konumun hiçbir kullanıcıya gösterilmez; diğer kullanıcılar yalnızc
 
 4. Saklama süreleri
 • Konum: en fazla 15 dakika (uygulama kapanınca hemen silinir)
-• BlitzSnap: açıldığı an, açılmazsa 24 saat sonra silinir
+• FinkSnap: açıldığı an, açılmazsa 24 saat sonra silinir
 • Kapanmış sohbetler ve mesajlar: 30 gün sonra silinir
 • Şikayet kayıtları: incelemenin gerektirdiği süre boyunca
 • Hesabını sildiğinde profil ve konum verilerin hemen silinir

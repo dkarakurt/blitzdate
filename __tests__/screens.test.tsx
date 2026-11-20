@@ -147,7 +147,7 @@ describe('Ekranlar (uçtan uca, demo sunucuya karşı)', () => {
     expect(screen.queryByTestId('radar-demo-7')).toBeNull(); // aynı cins
   });
 
-  test('BlitzRoom: mesaj, karşı tarafın cevabı, buzkıranı sohbete gönderme', async () => {
+  test('FinkRoom: mesaj, karşı tarafın cevabı, buzkıranı sohbete gönderme', async () => {
     await goToRoom();
     await fireEvent.changeText(screen.getByTestId('message-input'), 'Kenar yenir!');
     await fireEvent.press(screen.getByTestId('send-button'));
@@ -189,7 +189,7 @@ describe('Ekranlar (uçtan uca, demo sunucuya karşı)', () => {
     expect(screen.getByTestId('closed-text').props.children).toMatch(/Süre doldu/);
   });
 
-  test('BlitzMeet: yalnızca yakın kafeler; seçim sohbete mesaj olarak düşer', async () => {
+  test('FinkMeet: yalnızca yakın kafeler; seçim sohbete mesaj olarak düşer', async () => {
     await goToChat();
     await fireEvent.press(screen.getByTestId('meet-now'));
     await advance(50);
@@ -201,10 +201,10 @@ describe('Ekranlar (uçtan uca, demo sunucuya karşı)', () => {
     await advance(50);
     expect(screen.getByText('Haber verildi! Görüşürsünüz')).toBeTruthy();
     await fireEvent.press(screen.getByTestId('meet-back'));
-    expect(screen.getByText(/Köşe Kafe \(demo\) — oraya geliyorum/)).toBeTruthy();
+    expect(screen.getByText(/Köşe Kafe — oraya geliyorum/)).toBeTruthy();
   });
 
-  test('BlitzSnap (alıcı): açılınca sunucudan silinir, 5 sn görünür', async () => {
+  test('FinkSnap (alıcı): açılınca sunucudan silinir, 5 sn görünür', async () => {
     await goToChat();
     await advance(DEMO_TIMING.snapAfterChatMs + 100);
     await fireEvent.press(screen.getByTestId('open-snap'));
@@ -218,7 +218,7 @@ describe('Ekranlar (uçtan uca, demo sunucuya karşı)', () => {
     expect(screen.queryByTestId('open-snap')).toBeNull();
   });
 
-  test('BlitzSnap (gönderen): canlı kamera → küçült → gönder; hak biter', async () => {
+  test('FinkSnap (gönderen): canlı kamera → küçült → gönder; hak biter', async () => {
     await goToRoom();
     await fireEvent.press(screen.getByTestId('snap-button'));
     expect(screen.getByTestId('screen-snapCapture')).toBeTruthy();
@@ -230,7 +230,7 @@ describe('Ekranlar (uçtan uca, demo sunucuya karşı)', () => {
     await fireEvent.press(screen.getByTestId('snap-done'));
     expect(screen.getByTestId('screen-room')).toBeTruthy();
     expect(screen.getByText(/kozunu oynadın/)).toBeTruthy();
-    expect(screen.getByLabelText('BlitzSnap hakkın kullanıldı')).toBeTruthy();
+    expect(screen.getByLabelText('FinkSnap hakkın kullanıldı')).toBeTruthy();
   });
 
   test('İkinci Şans: kibar veda gönderilir, oda kapanır', async () => {

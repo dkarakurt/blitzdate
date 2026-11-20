@@ -21,14 +21,14 @@ export function Room({ state, dispatch, services, now }: ScreenProps) {
       <View style={{ flex: 1, padding: 16, gap: 12 }}>
         <PartnerHeader
           state={state}
-          status={`BlitzRoom · ${formatDistance(m.distanceM)}`}
+          status={`FinkRoom · ${formatDistance(m.distanceM)}`}
           right={<TimerRing progress={ringProgress(left, BLITZ_SECONDS)} label={String(left)} color={color} />}
           onReport={() => dispatch({ type: 'OPEN', overlay: 'report' })}
         />
 
         <View style={{ backgroundColor: colors.paper, borderRadius: 20, padding: 14, gap: 8 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={{ fontFamily: fonts.bodySemi, fontSize: 11, letterSpacing: 1.5, color: colors.inkSoft }}>BUZKIRAN · AI</Text>
+            <Text style={{ fontFamily: fonts.bodySemi, fontSize: 11, letterSpacing: 1.5, color: colors.inkSoft }}>BUZKIRAN</Text>
             <Pressable
               testID="next-icebreaker"
               accessibilityRole="button"

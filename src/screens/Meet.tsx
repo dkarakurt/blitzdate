@@ -9,7 +9,7 @@ import { colors, fonts } from '../ui/theme';
 import { ErrorLine } from './ChatParts';
 import type { ScreenProps } from './types';
 
-/** BlitzMeet: ikinize de yürüme mesafesindeki kafeler. Seçim sohbete mesaj olarak düşer. */
+/** FinkMeet: ikinize de yürüme mesafesindeki kafeler. Seçim sohbete mesaj olarak düşer. */
 export function Meet({ state, dispatch, services }: ScreenProps) {
   const me = state.profile!;
   const m = state.match!;

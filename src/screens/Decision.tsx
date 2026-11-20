@@ -39,7 +39,7 @@ export function Decision({ state, services, now }: ScreenProps) {
       <View style={{ alignItems: 'center', gap: 8 }}>
         <Text style={[T.h1, { fontSize: 40 }]}>Kıvılcım var mı?</Text>
         <Text style={[T.body, { textAlign: 'center', maxWidth: 300 }]}>
-          İkiniz de “Devam” derse BlitzRoom açık kalır. Biri bile demezse bu oda sonsuza dek kapanır.
+          İkiniz de “Devam” derse FinkRoom açık kalır. Biri bile demezse bu oda sonsuza dek kapanır.
         </Text>
       </View>
       <View style={{ flexDirection: 'row', gap: 12, alignSelf: 'stretch' }}>

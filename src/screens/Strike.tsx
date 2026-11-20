@@ -45,7 +45,7 @@ export function Strike({ state, now }: ScreenProps) {
           <Text testID="strike-count" style={{ fontFamily: fonts.display, fontSize: 26, color: colors.volt }}>{count}</Text>
         </View>
         <View>
-          <Text style={T.strong}>BlitzRoom açılıyor…</Text>
+          <Text style={T.strong}>FinkRoom açılıyor…</Text>
           <Text style={T.small}>Yazışma · 90 saniyen var</Text>
         </View>
       </View>

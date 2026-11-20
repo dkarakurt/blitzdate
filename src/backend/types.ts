@@ -41,7 +41,7 @@ export interface MatchView {
   decisionEndsAt: number;
   votes: { me: 'continue' | 'leave' | null; them: 'continue' | 'leave' | null };
   snapsSentByMe: number;
-  /** İkisi de yakın ve çevrimiçi: BlitzMeet önerilebilir */
+  /** İkisi de yakın ve çevrimiçi: FinkMeet önerilebilir */
   meetEligible: boolean;
   closedReason: ClosedReason | null;
   /** Kapanışı ben mi başlattım (veda / şikayet) */

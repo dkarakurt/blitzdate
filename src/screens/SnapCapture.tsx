@@ -32,7 +32,7 @@ async function shrink(uri: string): Promise<{ uri: string; base64: string }> {
 }
 
 /**
- * BlitzSnap çekimi: galeri seçicisi bilinçli olarak yok. Fotoğraf yalnızca bu ekrandaki
+ * FinkSnap çekimi: galeri seçicisi bilinçli olarak yok. Fotoğraf yalnızca bu ekrandaki
  * canlı kameradan gelir; gönderim anında yaşı kontrol edilir.
  */
 export function SnapCapture({ state, dispatch, services }: ScreenProps) {
@@ -90,7 +90,7 @@ export function SnapCapture({ state, dispatch, services }: ScreenProps) {
         </View>
         <Text style={[T.h1, { textAlign: 'center' }]}>Koz oynandı.</Text>
         <Text style={[T.body, { textAlign: 'center', maxWidth: 290 }]}>
-          {"BlitzSnap'in "}
+          {"FinkSnap'in "}
           {dative(partnerName)} ulaştı. Açtığı an 5 saniye görecek, sonra sonsuza dek silinecek.
         </Text>
         <View style={{ flex: 1 }} />
@@ -105,7 +105,7 @@ export function SnapCapture({ state, dispatch, services }: ScreenProps) {
     return (
       <View style={{ flex: 1, padding: 28, justifyContent: 'center', gap: 16 }}>
         <Text style={T.h1}>Kamera izni gerekli</Text>
-        <Text style={T.body}>BlitzSnap yalnızca o an çekilen fotoğrafla çalışır. Galerine erişmiyoruz.</Text>
+        <Text style={T.body}>FinkSnap yalnızca o an çekilen fotoğrafla çalışır. Galerine erişmiyoruz.</Text>
         <Btn label="Kameraya izin ver" big onPress={requestPermission} />
         <Btn label="Vazgeç" variant="ghost" onPress={() => dispatch({ type: 'CLOSE_OVERLAY' })} />
       </View>
