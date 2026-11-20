@@ -1,15 +1,16 @@
 /**
- * TASLAK METİNLER — yayından önce bir hukukçu tarafından gözden geçirilmeli.
- * Köşeli parantezli alanlar şirket bilgileriyle doldurulmalı.
+ * Yasal metinler. Web'deki tam sürümler: https://fink.denizkarakurt.com/gizlilik/ ve /kosullar/
+ * Yayından önce bir hukukçu tarafından gözden geçirilmesi önerilir.
  */
 
-export const LEGAL_CONTACT = '[İLETİŞİM E-POSTASI]';
+export const LEGAL_CONTACT = 'deniz.karakurt@hotmail.com';
+export const PRIVACY_URL = 'https://fink.denizkarakurt.com/gizlilik/';
 
 export const TERMS_TEXT = `Fink Kullanım Koşulları
-Sürüm: 11 Kasım 2026
+Sürüm: 20 Kasım 2026
 
 1. Taraflar ve kapsam
-Bu koşullar, [ŞİRKET UNVANI] ("Fink") tarafından sunulan Fink mobil uygulamasının kullanımını düzenler. Uygulamaya kaydolarak bu koşulları kabul etmiş olursun.
+Bu koşullar, Deniz Karakurt ("Fink") tarafından sunulan Fink mobil uygulamasının kullanımını düzenler. Uygulamaya kaydolarak bu koşulları kabul etmiş olursun.
 
 2. Yaş sınırı
 Fink yalnızca 18 yaşını doldurmuş kişiler içindir. 18 yaşından küçük olduğu anlaşılan hesaplar kapatılır. 18 yaşından küçük birini fark edersen lütfen "Şikayet et" ile bildir.
@@ -39,9 +40,10 @@ Bu koşullar güncellenebilir; önemli değişikliklerde uygulama içinde yenide
 ${LEGAL_CONTACT}`;
 
 export const PRIVACY_TEXT = `Kişisel Verilerin Korunması Hakkında Aydınlatma Metni (KVKK)
-Sürüm: 11 Kasım 2026
+Sürüm: 20 Kasım 2026
 
-Veri sorumlusu: [ŞİRKET UNVANI], [ADRES]. İletişim: ${LEGAL_CONTACT}
+Veri sorumlusu: Deniz Karakurt, İstanbul. İletişim: ${LEGAL_CONTACT}
+Gizlilik politikasının tam metni: ${PRIVACY_URL}
 
 1. İşlenen veriler
 • Anonim kullanıcı kimliği ve sana atanan hayvan ismi
@@ -49,6 +51,7 @@ Veri sorumlusu: [ŞİRKET UNVANI], [ADRES]. İletişim: ${LEGAL_CONTACT}
 • Konum: yalnızca uygulama açıkken; yakındaki kişileri bulmak ve buluşma noktası önermek için
 • Sohbet mesajların ve BlitzSnap fotoğrafların
 • Engelleme ve şikayet kayıtları
+• Teknik veriler: hata raporları (14 gün) ve uygulama adım kayıtları (3 gün); konum ve mesaj içeriği bu kayıtlara girmez
 
 2. İşleme amaçları ve hukuki sebep
 Verilerin; hizmetin sunulması (yakındaki kişileri gösterme, eşleştirme, sohbet, buluşma önerisi), güvenliğin sağlanması ve şikayetlerin incelenmesi amacıyla, KVKK m.5/2-c (sözleşmenin ifası) ve m.5/2-f (meşru menfaat) kapsamında işlenir.
@@ -64,7 +67,7 @@ Kesin konumun hiçbir kullanıcıya gösterilmez; diğer kullanıcılar yalnızc
 • Hesabını sildiğinde profil ve konum verilerin hemen silinir
 
 5. Aktarım
-Veriler, hizmet sağlayıcımız Cloudflare'in Avrupa Birliği'ndeki sunucularında saklanır (hesap kayıtları Batı Avrupa'da, radar ve sohbet verileri AB sınırları içinde). Buluşma önerisi için yalnızca buluşma noktasının koordinatı OpenStreetMap hizmetine gönderilir. Yurt dışına aktarım KVKK m.9 kapsamında gerçekleştirilir.
+Veriler, hizmet sağlayıcımız Cloudflare'in Avrupa Birliği'ndeki sunucularında saklanır (hesap kayıtları Batı Avrupa'da, radar ve sohbet verileri AB sınırları içinde). Kafe önerileri kendi veritabanımızdan gelir; yalnızca bölgede kayıt yoksa orta noktanın koordinatı (kimlik bilgisi olmadan) OpenStreetMap/Overpass hizmetine gönderilir. Yurt dışına aktarım KVKK m.9 kapsamında gerçekleştirilir.
 
 6. Hakların (KVKK m.11)
 Verilerinin işlenip işlenmediğini öğrenme, bilgi talep etme, düzeltilmesini veya silinmesini isteme, itiraz etme ve zararın giderilmesini talep etme haklarına sahipsin. Başvuruların için: ${LEGAL_CONTACT}`;

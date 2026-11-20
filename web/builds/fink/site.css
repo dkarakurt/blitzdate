@@ -433,3 +433,9 @@ h1, h2, h3 { font-weight: 600; }
   .msg, .verdict { animation: none; }
   .blip, .near li { transition-duration: 1ms; }
 }
+
+/* alt bilgi: yasal sayfalar */
+.foot { flex-wrap: wrap; }
+.foot__links { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.foot__links a { color: var(--sc-ink-soft); text-underline-offset: 3px; }
+@media (hover: hover) and (pointer: fine) { .foot__links a:hover { color: var(--sc-ink); } }
